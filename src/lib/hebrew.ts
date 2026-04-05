@@ -2,12 +2,69 @@ const TAAMIM_CHAR_REGEX = /[\u0591-\u05AF\u05BF\u05C0\u05C4\u05C5]/;
 const VOWELS_REGEX = /[\u05B0-\u05BC\u05C1\u05C2\u05C7]/g;
 const LETTER_REGEX = /[\u05D0-\u05EA]/g;
 const METEG = '\u05BD';
+const YETIV_MARK = '\u059A';
+const MAHPAKH_MARK = '\u05A4';
+const QADMA_PASHTA_MARK = '\u05A8';
+export const YETIV_TOKEN = '\uE000';
+export const MAHPAKH_TOKEN = '\uE001';
+export const QADMA_TOKEN = '\uE002';
+export const PASHTA_TOKEN = '\uE003';
 
-function normalizeTaamim(text: string, keepMetegIndex: number): string {
+function isHebrewLetter(character: string): boolean {
+  return LETTER_REGEX.test(character);
+}
+
+function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
+  const firstLetterIndex = Array.from(word).findIndex((character) => isHebrewLetter(character));
+  const lastLetterIndex =
+    Array.from(word)
+      .map((character, index) => ({ character, index }))
+      .filter(({ character }) => isHebrewLetter(character))
+      .at(-1)?.index ?? -1;
+  const qadmaPashtaPositions = Array.from(word)
+    .map((character, index) => ({ character, index }))
+    .filter(({ character }) => character === QADMA_PASHTA_MARK)
+    .map(({ index }) => index);
+  const hasDoubledPashta = qadmaPashtaPositions.length > 1;
+  let pashtaEmitted = false;
   let normalized = '';
 
-  for (let index = 0; index < text.length; index += 1) {
-    const character = text[index];
+  for (let index = 0; index < word.length; index += 1) {
+    const character = word[index];
+
+    if (
+      character === YETIV_TOKEN ||
+      character === MAHPAKH_TOKEN ||
+      character === QADMA_TOKEN ||
+      character === PASHTA_TOKEN
+    ) {
+      normalized += character;
+      continue;
+    }
+
+    if (character === YETIV_MARK) {
+      normalized += firstLetterIndex === -1 || index < firstLetterIndex ? YETIV_TOKEN : MAHPAKH_TOKEN;
+      continue;
+    }
+
+    if (character === MAHPAKH_MARK) {
+      normalized += MAHPAKH_TOKEN;
+      continue;
+    }
+
+    if (character === QADMA_PASHTA_MARK) {
+      const isPashta = hasDoubledPashta || index > lastLetterIndex;
+      if (isPashta) {
+        if (!pashtaEmitted) {
+          normalized += PASHTA_TOKEN;
+          pashtaEmitted = true;
+        }
+      } else {
+        normalized += QADMA_TOKEN;
+      }
+      continue;
+    }
+
     if (TAAMIM_CHAR_REGEX.test(character)) {
       normalized += character;
       continue;
@@ -19,6 +76,22 @@ function normalizeTaamim(text: string, keepMetegIndex: number): string {
   }
 
   return normalized;
+}
+
+function normalizeTaamim(text: string, keepMetegIndex: number): string {
+  let searchStart = 0;
+
+  return splitHebrewWords(text)
+    .map((word) => {
+      const wordOffset = text.indexOf(word, searchStart);
+      searchStart = wordOffset + word.length;
+      const relativeMetegIndex =
+        keepMetegIndex >= wordOffset && keepMetegIndex < wordOffset + word.length
+          ? keepMetegIndex - wordOffset
+          : -1;
+      return normalizeWordTaamim(word, relativeMetegIndex);
+    })
+    .join('');
 }
 
 function getMetegIndexForWholeText(text: string): number {
@@ -88,4 +161,20 @@ export function highlightWords(
     text: word,
     isMatch: index >= startWordIndex && index <= endWordIndex,
   }));
+}
+
+export function displayTaamimCharacter(character: string): string {
+  if (character === YETIV_TOKEN) {
+    return '֚';
+  }
+
+  if (character === MAHPAKH_TOKEN) {
+    return '֤';
+  }
+
+  if (character === QADMA_TOKEN || character === PASHTA_TOKEN) {
+    return '֨';
+  }
+
+  return character;
 }

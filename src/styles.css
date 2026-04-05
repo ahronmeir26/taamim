@@ -134,6 +134,16 @@ button {
   gap: 12px;
 }
 
+.browser__instruction {
+  margin-top: 16px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(142, 95, 29, 0.1);
+  border: 1px solid rgba(142, 95, 29, 0.18);
+  color: #5b4018;
+  font-size: 0.98rem;
+}
+
 .browser__chapter-select {
   min-width: 5.5rem;
 }
@@ -202,11 +212,18 @@ button {
 }
 
 .mode-toggle,
-.taamim-keyboard,
 .taamim-bubbles {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+}
+
+.taamim-keyboard {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+  gap: 8px;
 }
 
 .taamim-bubbles {
@@ -269,8 +286,8 @@ button {
   align-items: center;
   justify-content: center;
   gap: 5px;
-  min-width: 7rem;
-  min-height: 4.75rem;
+  width: 6.2rem;
+  min-height: 4.5rem;
   border-radius: 18px;
 }
 

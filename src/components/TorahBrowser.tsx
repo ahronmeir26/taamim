@@ -35,8 +35,8 @@ export function TorahBrowser({
     <section className="browser">
       <header className="browser__header">
         <div>
-          <span className="eyebrow">Torah Text</span>
-          <h2>Browse and select Hebrew words with taamim.</h2>
+          <span className="eyebrow">Select Text To Search</span>
+          <h2>Highlight words in this left column to search their taamim sequence.</h2>
         </div>
         <div className="browser__controls">
           <label>
@@ -65,6 +65,10 @@ export function TorahBrowser({
           </label>
         </div>
       </header>
+
+      <div className="browser__instruction">
+        Select any word or phrase below. The taamim sequence will be built automatically and searched on the right.
+      </div>
 
       <div className="browser__text">
         {verses.map((verse) => (

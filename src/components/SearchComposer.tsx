@@ -1,3 +1,11 @@
+import {
+  MAHPAKH_TOKEN,
+  PASHTA_TOKEN,
+  QADMA_TOKEN,
+  YETIV_TOKEN,
+  displayTaamimCharacter,
+} from '../lib/hebrew';
+
 type SearchMode = 'selection' | 'manual';
 
 type SearchComposerProps = {
@@ -11,19 +19,28 @@ type SearchComposerProps = {
 };
 
 const TAAMIM_KEYS = [
-  { label: '֑', name: 'אֶתְנַחְתָּא' },
-  { label: '֖', name: 'טִפְחָא' },
+  { label: '֨', value: QADMA_TOKEN, name: 'קַדְמָא' },
   { label: '֣', name: 'מֻנַּח' },
-  { label: '֔', name: 'זָקֵף גָּדוֹל' },
-  { label: '֕', name: 'זָקֵף קָטָן' },
-  { label: '֗', name: 'רְבִיעִי' },
   { label: '֘', name: 'זַרְקָא' },
-  { label: '֙', name: 'פַּשְׁטָא' },
-  { label: '֚', name: 'יְתִיב' },
-  { label: '֜', name: 'גֵּרֵשׁ' },
-  { label: '֞', name: 'גֵּרְשַׁיִם' },
+  { label: '֒', name: 'סְגוֹל' },
+  { label: '֗', name: 'רְבִיעִי' },
+  { label: '֤', value: MAHPAKH_TOKEN, name: 'מַהְפַּךְ' },
+  { label: '֨', value: PASHTA_TOKEN, name: 'פַּשְׁטָא' },
+  { label: '֔', name: 'זָקֵף קָטָן' },
+  { label: '֕', name: 'זָקֵף גָּדוֹל' },
+  { label: '֧', name: 'דַּרְגָּא' },
+  { label: '֛', name: 'תְּבִיר' },
   { label: '֥', name: 'מֵרְכָא' },
+  { label: '֖', name: 'טִפְחָא' },
+  { label: '֑', name: 'אֶתְנַחְתָּא' },
   { label: 'ֽ', name: 'סוֹף פָּסוּק' },
+  { label: '֡', name: 'פָּזֵר' },
+  { label: '֩', name: 'תְּלִישָׁא קְטַנָּה' },
+  { label: '֠', name: 'תְּלִישָׁא גְדוֹלָה' },
+  { label: '֜', name: 'אַזְלָא גֵּרֵשׁ' },
+  { label: '֞', name: 'גֵּרְשַׁיִם' },
+  { label: '֚', value: YETIV_TOKEN, name: 'יְתִיב' },
+  { label: '֓', name: 'שַׁלְשֶׁלֶת' },
 ];
 
 export function SearchComposer({
@@ -82,7 +99,7 @@ export function SearchComposer({
             {query ? (
               Array.from(query).map((mark, index) => (
                 <span key={`${mark}-${index}`} className="taamim-bubble">
-                  {mark}
+                  {displayTaamimCharacter(mark)}
                 </span>
               ))
             ) : null}
@@ -99,7 +116,7 @@ export function SearchComposer({
                 key={key.label}
                 type="button"
                 title={key.name}
-                onClick={() => onQueryChange(query + key.label)}
+                onClick={() => onQueryChange(query + (key.value ?? key.label))}
               >
                 <span className="taamim-keyboard__mark" dir="rtl" lang="he">
                   {key.label}
