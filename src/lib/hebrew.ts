@@ -5,13 +5,78 @@ const METEG = '\u05BD';
 const YETIV_MARK = '\u059A';
 const MAHPAKH_MARK = '\u05A4';
 const QADMA_PASHTA_MARK = '\u05A8';
+const SEGOL_MARK = '\u0592';
+const TELISHA_GEDOLA_MARK = '\u05A0';
+const TELISHA_KETANA_MARK = '\u05A9';
+const ZARQA_MARK = '\u0598';
+const ZINOR_MARK = '\u05AE';
 export const YETIV_TOKEN = '\uE000';
 export const MAHPAKH_TOKEN = '\uE001';
 export const QADMA_TOKEN = '\uE002';
 export const PASHTA_TOKEN = '\uE003';
+export const ZARQA_TOKEN = '\uE004';
 
 function isHebrewLetter(character: string): boolean {
   return LETTER_REGEX.test(character);
+}
+
+function hasHebrewLetters(text: string): boolean {
+  return Array.from(text).some((character) => isHebrewLetter(character));
+}
+
+function normalizeTypedTaamim(text: string): string {
+  let normalized = '';
+
+  for (let index = 0; index < text.length; index += 1) {
+    const character = text[index];
+
+    if (
+      character === YETIV_TOKEN ||
+      character === MAHPAKH_TOKEN ||
+      character === QADMA_TOKEN ||
+      character === PASHTA_TOKEN ||
+      character === ZARQA_TOKEN
+    ) {
+      normalized += character;
+      continue;
+    }
+
+    if (character === YETIV_MARK) {
+      normalized += YETIV_TOKEN;
+      continue;
+    }
+
+    if (character === MAHPAKH_MARK) {
+      normalized += MAHPAKH_TOKEN;
+      continue;
+    }
+
+    if (character === QADMA_PASHTA_MARK) {
+      normalized += PASHTA_TOKEN;
+      continue;
+    }
+
+    if (character === ZARQA_MARK || character === ZINOR_MARK) {
+      normalized += ZARQA_TOKEN;
+      continue;
+    }
+
+    if (
+      character === SEGOL_MARK ||
+      character === TELISHA_GEDOLA_MARK ||
+      character === TELISHA_KETANA_MARK ||
+      TAAMIM_CHAR_REGEX.test(character)
+    ) {
+      normalized += character;
+      continue;
+    }
+
+    if (character === METEG) {
+      normalized += character;
+    }
+  }
+
+  return normalized;
 }
 
 function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
@@ -27,6 +92,7 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
     .map(({ index }) => index);
   const hasDoubledPashta = qadmaPashtaPositions.length > 1;
   let pashtaEmitted = false;
+  const singleInstanceTaamim = new Set<string>();
   let normalized = '';
 
   for (let index = 0; index < word.length; index += 1) {
@@ -36,9 +102,19 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
       character === YETIV_TOKEN ||
       character === MAHPAKH_TOKEN ||
       character === QADMA_TOKEN ||
-      character === PASHTA_TOKEN
+      character === PASHTA_TOKEN ||
+      character === ZARQA_TOKEN
     ) {
       normalized += character;
+      continue;
+    }
+
+    if (character === ZARQA_MARK || character === ZINOR_MARK) {
+      if (singleInstanceTaamim.has(ZARQA_TOKEN)) {
+        continue;
+      }
+      singleInstanceTaamim.add(ZARQA_TOKEN);
+      normalized += ZARQA_TOKEN;
       continue;
     }
 
@@ -56,12 +132,26 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
       const isPashta = hasDoubledPashta || index > lastLetterIndex;
       if (isPashta) {
         if (!pashtaEmitted) {
+          singleInstanceTaamim.add(PASHTA_TOKEN);
           normalized += PASHTA_TOKEN;
           pashtaEmitted = true;
         }
       } else {
         normalized += QADMA_TOKEN;
       }
+      continue;
+    }
+
+    if (
+      character === SEGOL_MARK ||
+      character === TELISHA_GEDOLA_MARK ||
+      character === TELISHA_KETANA_MARK
+    ) {
+      if (singleInstanceTaamim.has(character)) {
+        continue;
+      }
+      singleInstanceTaamim.add(character);
+      normalized += character;
       continue;
     }
 
@@ -79,6 +169,10 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
 }
 
 function normalizeTaamim(text: string, keepMetegIndex: number): string {
+  if (!hasHebrewLetters(text)) {
+    return normalizeTypedTaamim(text);
+  }
+
   let searchStart = 0;
 
   return splitHebrewWords(text)
@@ -174,6 +268,10 @@ export function displayTaamimCharacter(character: string): string {
 
   if (character === QADMA_TOKEN || character === PASHTA_TOKEN) {
     return '֨';
+  }
+
+  if (character === ZARQA_TOKEN) {
+    return '֘';
   }
 
   return character;

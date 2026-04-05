@@ -6,13 +6,9 @@ import {
   displayTaamimCharacter,
 } from '../lib/hebrew';
 
-type SearchMode = 'selection' | 'manual';
-
 type SearchComposerProps = {
-  mode: SearchMode;
   query: string;
   selectedText: string;
-  onModeChange: (mode: SearchMode) => void;
   onQueryChange: (value: string) => void;
   onBackspace: () => void;
   onClear: () => void;
@@ -44,10 +40,8 @@ const TAAMIM_KEYS = [
 ];
 
 export function SearchComposer({
-  mode,
   query,
   selectedText,
-  onModeChange,
   onQueryChange,
   onBackspace,
   onClear,
@@ -59,36 +53,20 @@ export function SearchComposer({
           <p className="eyebrow">Taamim Search</p>
           <h1>Search exact taamim sequences anywhere in the Torah.</h1>
         </div>
-        <div className="mode-toggle" role="tablist" aria-label="Search mode">
-          <button
-            type="button"
-            className={mode === 'selection' ? 'is-active' : ''}
-            onClick={() => onModeChange('selection')}
-          >
-            Selected Words
-          </button>
-          <button
-            type="button"
-            className={mode === 'manual' ? 'is-active' : ''}
-            onClick={() => onModeChange('manual')}
-          >
-            Type Taamim
-          </button>
-        </div>
       </div>
 
       <div className="composer__body">
-        <div className="composer__actions">
+        <div className="composer__selected-text">
+          <span className="eyebrow">Selected Text</span>
+          <p>{selectedText || 'Select Torah words to extract their taamim sequence.'}</p>
+        </div>
+        <div className="composer__actions composer__actions--right">
           <button type="button" className="ghost-button" onClick={onBackspace}>
             Delete Last
           </button>
           <button type="button" className="ghost-button" onClick={onClear}>
             Clear
           </button>
-        </div>
-        <div className="composer__selected-text">
-          <span className="eyebrow">Selected Text</span>
-          <p>{selectedText || 'Select Torah words to extract their taamim sequence.'}</p>
         </div>
       </div>
 

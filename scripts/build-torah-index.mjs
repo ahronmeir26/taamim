@@ -17,10 +17,16 @@ const METEG = '\u05BD';
 const YETIV_MARK = '\u059A';
 const MAHPAKH_MARK = '\u05A4';
 const QADMA_PASHTA_MARK = '\u05A8';
+const SEGOL_MARK = '\u0592';
+const TELISHA_GEDOLA_MARK = '\u05A0';
+const TELISHA_KETANA_MARK = '\u05A9';
+const ZARQA_MARK = '\u0598';
+const ZINOR_MARK = '\u05AE';
 const YETIV_TOKEN = '\uE000';
 const MAHPAKH_TOKEN = '\uE001';
 const QADMA_TOKEN = '\uE002';
 const PASHTA_TOKEN = '\uE003';
+const ZARQA_TOKEN = '\uE004';
 
 function extract(text, regex) {
   return text.match(regex)?.join('') ?? '';
@@ -39,6 +45,7 @@ function normalizeWordTaamim(word, keepMetegIndex) {
     .map(({ index }) => index);
   const hasDoubledPashta = qadmaPashtaPositions.length > 1;
   let pashtaEmitted = false;
+  const singleInstanceTaamim = new Set();
   let normalized = '';
 
   for (let index = 0; index < word.length; index += 1) {
@@ -58,9 +65,19 @@ function normalizeWordTaamim(word, keepMetegIndex) {
       character === YETIV_TOKEN ||
       character === MAHPAKH_TOKEN ||
       character === QADMA_TOKEN ||
-      character === PASHTA_TOKEN
+      character === PASHTA_TOKEN ||
+      character === ZARQA_TOKEN
     ) {
       normalized += character;
+      continue;
+    }
+
+    if (character === ZARQA_MARK || character === ZINOR_MARK) {
+      if (singleInstanceTaamim.has(ZARQA_TOKEN)) {
+        continue;
+      }
+      singleInstanceTaamim.add(ZARQA_TOKEN);
+      normalized += ZARQA_TOKEN;
       continue;
     }
 
@@ -68,12 +85,26 @@ function normalizeWordTaamim(word, keepMetegIndex) {
       const isPashta = hasDoubledPashta || index > lastLetterIndex;
       if (isPashta) {
         if (!pashtaEmitted) {
+          singleInstanceTaamim.add(PASHTA_TOKEN);
           normalized += PASHTA_TOKEN;
           pashtaEmitted = true;
         }
       } else {
         normalized += QADMA_TOKEN;
       }
+      continue;
+    }
+
+    if (
+      character === SEGOL_MARK ||
+      character === TELISHA_GEDOLA_MARK ||
+      character === TELISHA_KETANA_MARK
+    ) {
+      if (singleInstanceTaamim.has(character)) {
+        continue;
+      }
+      singleInstanceTaamim.add(character);
+      normalized += character;
       continue;
     }
 

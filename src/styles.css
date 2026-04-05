@@ -96,6 +96,10 @@ button {
   justify-content: flex-end;
 }
 
+.composer__actions--right {
+  margin-left: auto;
+}
+
 .composer__selected-text {
   flex: 1;
 }
@@ -211,7 +215,6 @@ button {
   cursor: text;
 }
 
-.mode-toggle,
 .taamim-bubbles {
   display: flex;
   gap: 8px;
@@ -221,9 +224,9 @@ button {
 .taamim-keyboard {
   display: flex;
   flex-wrap: wrap;
-  flex-direction: row-reverse;
-  justify-content: flex-start;
+  justify-content: flex-end;
   gap: 8px;
+  direction: rtl;
 }
 
 .taamim-bubbles {
@@ -232,19 +235,12 @@ button {
   width: 100%;
 }
 
-.mode-toggle button,
 .taamim-keyboard button,
 .ghost-button {
   border: 1px solid var(--border);
   border-radius: 999px;
   background: var(--surface-strong);
   padding: 10px 14px;
-}
-
-.mode-toggle .is-active {
-  background: #2f2212;
-  color: #f9f4e8;
-  border-color: #2f2212;
 }
 
 .matched-word {

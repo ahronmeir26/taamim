@@ -5,14 +5,12 @@ import { TorahBrowser } from './components/TorahBrowser';
 import { extractTaamim } from './lib/hebrew';
 import type { BookSummary, SearchResult, VerseRecord } from './types';
 
-type SearchMode = 'selection' | 'manual';
 const API_BASE = `${import.meta.env.BASE_URL}api`;
 
 export default function App() {
   const [books, setBooks] = useState<BookSummary[]>([]);
   const [chapterVerses, setChapterVerses] = useState<VerseRecord[]>([]);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
-  const [mode, setMode] = useState<SearchMode>('selection');
   const [query, setQuery] = useState('');
   const [selectedText, setSelectedText] = useState('');
   const [activeBook, setActiveBook] = useState<VerseRecord['book']>('Genesis');
@@ -36,6 +34,32 @@ export default function App() {
       window.clearTimeout(timeoutId);
     };
   }, [searchQuery]);
+
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key !== 'Backspace') {
+        return;
+      }
+
+      const target = event.target;
+      if (
+        target instanceof HTMLInputElement ||
+        target instanceof HTMLTextAreaElement ||
+        target instanceof HTMLSelectElement ||
+        (target instanceof HTMLElement && target.isContentEditable)
+      ) {
+        return;
+      }
+
+      event.preventDefault();
+      setQuery((current) => current.slice(0, -1));
+    }
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, []);
 
   useEffect(() => {
     async function loadBooks() {
@@ -140,16 +164,7 @@ export default function App() {
     const verseText = chapterVerses.find((verse) => verse.ref === ref)?.text;
     setSelectedText(nextSelectedText);
     setFocusedRef(ref);
-    if (mode === 'selection') {
-      setQuery(extractTaamim(nextSelectedText, verseText));
-    }
-  }
-
-  function handleModeChange(nextMode: SearchMode) {
-    setMode(nextMode);
-    if (nextMode === 'selection') {
-      setQuery(extractTaamim(selectedText));
-    }
+    setQuery(extractTaamim(nextSelectedText, verseText));
   }
 
   function handleResultSelect(result: SearchResult) {
@@ -184,10 +199,8 @@ export default function App() {
   return (
     <main className="app-shell">
       <SearchComposer
-        mode={mode}
         query={query}
         selectedText={selectedText}
-        onModeChange={handleModeChange}
         onQueryChange={setQuery}
         onBackspace={() => setQuery((current) => current.slice(0, -1))}
         onClear={() => {
