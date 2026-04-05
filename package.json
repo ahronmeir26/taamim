@@ -1,0 +1,27 @@
+{
+  "name": "taamim-search",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "server": "node server/index.mjs",
+    "build": "tsc -b && vite build",
+    "preview": "vite preview",
+    "fetch:texts": "node scripts/fetch-sefaria.mjs",
+    "build:index": "node scripts/build-torah-index.mjs",
+    "prepare:data": "npm run fetch:texts && npm run build:index"
+  },
+  "dependencies": {
+    "express": "^5.1.0",
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0"
+  },
+  "devDependencies": {
+    "@types/react": "^19.1.2",
+    "@types/react-dom": "^19.1.2",
+    "@vitejs/plugin-react": "^5.0.0",
+    "typescript": "^5.8.3",
+    "vite": "^7.0.0"
+  }
+}

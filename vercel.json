@@ -1,0 +1,11 @@
+{
+  "framework": "vite",
+  "rewrites": [
+    { "source": "/taamim/api/books", "destination": "/api/books" },
+    { "source": "/taamim/api/chapter", "destination": "/api/chapter" },
+    { "source": "/taamim/api/search", "destination": "/api/search" },
+    { "source": "/taamim/assets/:path*", "destination": "/assets/:path*" },
+    { "source": "/taamim", "destination": "/index.html" },
+    { "source": "/taamim/:path*", "destination": "/index.html" }
+  ]
+}
