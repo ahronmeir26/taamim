@@ -1,5 +1,18 @@
 export type TorahBook = 'Genesis' | 'Exodus' | 'Leviticus' | 'Numbers' | 'Deuteronomy';
 
+export type VerseNote = {
+  index: number;
+  rawNote: string;
+  noteText: string;
+  tradition: 'sephardi-ashkenazi' | 'teimani' | 'mam' | 'other';
+  action: 'replace' | 'remove-break' | 'note';
+  replacement: string | null;
+  precedingSegment: string;
+  precedingToken: string;
+  followingSegment: string;
+  followingToken: string;
+};
+
 export type VerseRecord = {
   ref: string;
   book: TorahBook;
@@ -7,6 +20,8 @@ export type VerseRecord = {
   chapter: number;
   verse: number;
   text: string;
+  baseText: string;
+  notes: VerseNote[];
 };
 
 export type SearchResult = {
@@ -19,6 +34,8 @@ export type SearchResult = {
   matchedTaamim: string;
   matchedText: string;
   contextText: string;
+  baseContextText: string;
+  notes: VerseNote[];
 };
 
 export type BookSummary = {

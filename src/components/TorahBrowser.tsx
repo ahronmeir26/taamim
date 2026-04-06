@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import type { VerseRecord } from '../types';
 
 type TorahBrowserProps = {
@@ -5,11 +6,11 @@ type TorahBrowserProps = {
   activeBook: VerseRecord['book'];
   activeChapter: number;
   selectedRef: string | null;
+  scrollRequest: { ref: string; nonce: number } | null;
   verses: VerseRecord[];
   onBookChange: (book: VerseRecord['book']) => void;
   onChapterChange: (chapter: number) => void;
   onTextSelection: (selectedText: string, ref: string) => void;
-  onVerseFocus: (ref: string) => void;
 };
 
 export function TorahBrowser({
@@ -17,14 +18,32 @@ export function TorahBrowser({
   activeBook,
   activeChapter,
   selectedRef,
+  scrollRequest,
   verses,
   onBookChange,
   onChapterChange,
   onTextSelection,
-  onVerseFocus,
 }: TorahBrowserProps) {
   const bookOptions = books;
   const chapterOptions = books.find((book) => book.book === activeBook)?.chapters ?? [];
+  const verseRefs = useRef(new Map<string, HTMLElement>());
+
+  useEffect(() => {
+    if (!scrollRequest) {
+      return;
+    }
+
+    const verseElement = verseRefs.current.get(scrollRequest.ref);
+    if (!verseElement) {
+      return;
+    }
+
+    verseElement.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
+    });
+  }, [scrollRequest, verses]);
 
   function handleSelection(ref: string) {
     const selectedText = window.getSelection?.()?.toString() ?? '';
@@ -39,20 +58,24 @@ export function TorahBrowser({
           <h2>Highlight words in this left column to search their taamim sequence.</h2>
         </div>
         <div className="browser__controls">
-          <label>
+          <label className="browser__control browser__control--book">
             <span>Sefer</span>
-            <select value={activeBook} onChange={(event) => onBookChange(event.target.value as VerseRecord['book'])}>
+            <select
+              className="browser__select browser__select--book"
+              value={activeBook}
+              onChange={(event) => onBookChange(event.target.value as VerseRecord['book'])}
+            >
               {bookOptions.map((book) => (
                 <option key={book.book} value={book.book}>
-                  {book.bookHebrew} · {book.book}
+                  {book.bookHebrew}
                 </option>
               ))}
             </select>
           </label>
-          <label>
+          <label className="browser__control browser__control--chapter">
             <span>Perek</span>
             <select
-              className="browser__chapter-select"
+              className="browser__select browser__select--chapter"
               value={activeChapter}
               onChange={(event) => onChapterChange(Number(event.target.value))}
             >
@@ -72,22 +95,27 @@ export function TorahBrowser({
 
       <div className="browser__text">
         {verses.map((verse) => (
-          <article key={verse.ref} className={selectedRef === verse.ref ? 'verse is-active' : 'verse'}>
-            <button
-              type="button"
-              className="verse__number"
-              onClick={() => onVerseFocus(verse.ref)}
-              aria-label={`Focus ${verse.ref}`}
-            >
+          <article
+            key={verse.ref}
+            ref={(element) => {
+              if (element) {
+                verseRefs.current.set(verse.ref, element);
+                return;
+              }
+
+              verseRefs.current.delete(verse.ref);
+            }}
+            className={selectedRef === verse.ref ? 'verse is-active' : 'verse'}
+          >
+            <span className="verse__number" aria-hidden="true">
               {verse.verse}
-            </button>
+            </span>
             <p
               className="verse__text"
               dir="rtl"
               lang="he"
               onMouseUp={() => handleSelection(verse.ref)}
               onKeyUp={() => handleSelection(verse.ref)}
-              onClick={() => onVerseFocus(verse.ref)}
             >
               {verse.text}
             </p>

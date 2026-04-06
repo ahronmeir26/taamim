@@ -21,7 +21,7 @@ const TAAMIM_KEYS = [
   { label: '֒', name: 'סְגוֹל' },
   { label: '֗', name: 'רְבִיעִי' },
   { label: '֤', value: MAHPAKH_TOKEN, name: 'מַהְפַּךְ' },
-  { label: '֨', value: PASHTA_TOKEN, name: 'פַּשְׁטָא' },
+  { label: '֙', value: PASHTA_TOKEN, name: 'פַּשְׁטָא' },
   { label: '֔', name: 'זָקֵף קָטָן' },
   { label: '֕', name: 'זָקֵף גָּדוֹל' },
   { label: '֧', name: 'דַּרְגָּא' },
@@ -49,18 +49,11 @@ export function SearchComposer({
   return (
     <section className="composer">
       <div className="composer__header">
-        <div>
+        <div className="composer__title">
           <p className="eyebrow">Taamim Search</p>
-          <h1>Search exact taamim sequences anywhere in the Torah.</h1>
+          <h1>Exact Torah taamim search</h1>
         </div>
-      </div>
-
-      <div className="composer__body">
-        <div className="composer__selected-text">
-          <span className="eyebrow">Selected Text</span>
-          <p>{selectedText || 'Select Torah words to extract their taamim sequence.'}</p>
-        </div>
-        <div className="composer__actions composer__actions--right">
+        <div className="composer__actions">
           <button type="button" className="ghost-button" onClick={onBackspace}>
             Delete Last
           </button>
@@ -70,7 +63,12 @@ export function SearchComposer({
         </div>
       </div>
 
-      <div className="composer__meta composer__meta--sequence">
+      <div className="composer__body">
+        <div className="composer__selected-text">
+          <span className="eyebrow">Selected Text</span>
+          <p>{selectedText || 'Select text below'}</p>
+        </div>
+
         <div className="composer__sequence">
           <span className="eyebrow">Current Sequence</span>
           <div className="taamim-bubbles" dir="rtl" lang="he">
@@ -80,15 +78,16 @@ export function SearchComposer({
                   {displayTaamimCharacter(mark)}
                 </span>
               ))
-            ) : null}
+            ) : (
+              <span className="composer__empty-sequence">No taamim selected</span>
+            )}
           </div>
         </div>
       </div>
 
       <div className="composer__meta composer__meta--keyboard">
         <div className="composer__keyboard-block">
-          <span className="eyebrow">Taamim Buttons</span>
-          <div className="taamim-keyboard">
+          <div className="taamim-keyboard" dir="rtl">
             {TAAMIM_KEYS.map((key) => (
               <button
                 key={key.label}

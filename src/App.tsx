@@ -16,9 +16,11 @@ export default function App() {
   const [activeBook, setActiveBook] = useState<VerseRecord['book']>('Genesis');
   const [activeChapter, setActiveChapter] = useState(1);
   const [activeResult, setActiveResult] = useState<SearchResult | null>(null);
-  const [focusedRef, setFocusedRef] = useState<string | null>(null);
+  const [selectedSourceRef, setSelectedSourceRef] = useState<string | null>(null);
+  const [scrollRequest, setScrollRequest] = useState<{ ref: string; nonce: number } | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [headerHidden, setHeaderHidden] = useState(false);
   const chapterCache = useRef(new Map<string, VerseRecord[]>());
   const searchCache = useRef(new Map<string, SearchResult[]>());
 
@@ -91,9 +93,6 @@ export default function App() {
       const cached = chapterCache.current.get(cacheKey);
       if (cached) {
         setChapterVerses(cached);
-        if (cached.length > 0 && !focusedRef) {
-          setFocusedRef(cached[0].ref);
-        }
         return;
       }
 
@@ -107,18 +106,16 @@ export default function App() {
       const payload = (await response.json()) as VerseRecord[];
       chapterCache.current.set(cacheKey, payload);
       setChapterVerses(payload);
-      if (payload.length > 0 && !focusedRef) {
-        setFocusedRef(payload[0].ref);
-      }
     }
 
     void loadChapter();
-  }, [activeBook, activeChapter, focusedRef, loadState]);
+  }, [activeBook, activeChapter, loadState]);
 
   useEffect(() => {
     if (!debouncedSearchQuery) {
       setResults([]);
       setActiveResult(null);
+      setHeaderHidden(false);
       return;
     }
 
@@ -161,17 +158,22 @@ export default function App() {
   }, [debouncedSearchQuery]);
 
   function handleTextSelection(nextSelectedText: string, ref: string) {
+    if (!nextSelectedText.trim()) {
+      return;
+    }
+
     const verseText = chapterVerses.find((verse) => verse.ref === ref)?.text;
+    setActiveResult(null);
     setSelectedText(nextSelectedText);
-    setFocusedRef(ref);
+    setSelectedSourceRef(ref);
     setQuery(extractTaamim(nextSelectedText, verseText));
   }
 
   function handleResultSelect(result: SearchResult) {
     setActiveResult(result);
-    setFocusedRef(result.ref);
     setActiveBook(result.book);
     setActiveChapter(result.chapter);
+    setScrollRequest({ ref: result.ref, nonce: Date.now() });
   }
 
   if (loadState === 'loading') {
@@ -198,39 +200,47 @@ export default function App() {
 
   return (
     <main className="app-shell">
-      <SearchComposer
-        query={query}
-        selectedText={selectedText}
-        onQueryChange={setQuery}
-        onBackspace={() => setQuery((current) => current.slice(0, -1))}
-        onClear={() => {
-          setQuery('');
-          setSelectedText('');
-          setActiveResult(null);
-          setResults([]);
-        }}
-      />
+      <div className={headerHidden ? 'composer-shell is-hidden' : 'composer-shell'}>
+        <SearchComposer
+          query={query}
+          selectedText={selectedText}
+          onQueryChange={setQuery}
+          onBackspace={() => setQuery((current) => current.slice(0, -1))}
+          onClear={() => {
+            setQuery('');
+            setSelectedText('');
+            setActiveResult(null);
+            setSelectedSourceRef(null);
+            setScrollRequest(null);
+            setHeaderHidden(false);
+            setResults([]);
+          }}
+        />
+      </div>
 
       <div className="workspace">
         <TorahBrowser
           books={books}
           activeBook={activeBook}
           activeChapter={activeChapter}
-          selectedRef={focusedRef}
+          selectedRef={activeResult?.ref ?? selectedSourceRef}
+          scrollRequest={scrollRequest}
           verses={chapterVerses}
           onBookChange={(book) => {
             setActiveBook(book);
             setActiveChapter(books.find((item) => item.book === book)?.chapters[0] ?? 1);
-            setFocusedRef(null);
+            setActiveResult(null);
+            setSelectedSourceRef(null);
+            setScrollRequest(null);
           }}
           onChapterChange={setActiveChapter}
           onTextSelection={handleTextSelection}
-          onVerseFocus={setFocusedRef}
         />
         <ResultsList
           results={deferredResults}
           activeRef={activeResult?.ref ?? null}
           onSelect={handleResultSelect}
+          onScrollStateChange={setHeaderHidden}
         />
       </div>
     </main>

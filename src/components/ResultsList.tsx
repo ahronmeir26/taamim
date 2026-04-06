@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { SearchResult } from '../types';
 import { highlightWords } from '../lib/hebrew';
 
@@ -6,15 +6,32 @@ type ResultsListProps = {
   results: SearchResult[];
   activeRef: string | null;
   onSelect: (result: SearchResult) => void;
+  onScrollStateChange: (shouldHideHeader: boolean) => void;
 };
 
-export function ResultsList({ results, activeRef, onSelect }: ResultsListProps) {
+export function ResultsList({ results, activeRef, onSelect, onScrollStateChange }: ResultsListProps) {
   const [visibleCount, setVisibleCount] = useState(100);
+  const lastScrollTop = useRef(0);
   const visibleResults = useMemo(() => results.slice(0, visibleCount), [results, visibleCount]);
 
   useEffect(() => {
     setVisibleCount(100);
+    lastScrollTop.current = 0;
+    onScrollStateChange(false);
   }, [results]);
+
+  function handleScroll(event: React.UIEvent<HTMLDivElement>) {
+    const nextScrollTop = event.currentTarget.scrollTop;
+    const delta = nextScrollTop - lastScrollTop.current;
+
+    if (nextScrollTop <= 8 || delta < -4) {
+      onScrollStateChange(false);
+    } else if (delta > 4) {
+      onScrollStateChange(true);
+    }
+
+    lastScrollTop.current = nextScrollTop;
+  }
 
   return (
     <section className="results">
@@ -23,7 +40,7 @@ export function ResultsList({ results, activeRef, onSelect }: ResultsListProps) 
         <h2>{results.length} exact matches</h2>
       </header>
 
-      <div className="results__list">
+      <div className="results__list" onScroll={handleScroll}>
         {visibleResults.map((result) => (
           <button
             key={`${result.ref}-${result.startWordIndex}-${result.endWordIndex}`}
