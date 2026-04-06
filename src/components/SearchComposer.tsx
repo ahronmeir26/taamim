@@ -21,7 +21,7 @@ const TAAMIM_KEYS = [
   { label: '֒', name: 'סְגוֹל' },
   { label: '֗', name: 'רְבִיעִי' },
   { label: '֤', value: MAHPAKH_TOKEN, name: 'מַהְפַּךְ' },
-  { label: '֨', value: PASHTA_TOKEN, name: 'פַּשְׁטָא' },
+  { label: '֙', value: PASHTA_TOKEN, name: 'פַּשְׁטָא' },
   { label: '֔', name: 'זָקֵף קָטָן' },
   { label: '֕', name: 'זָקֵף גָּדוֹל' },
   { label: '֧', name: 'דַּרְגָּא' },

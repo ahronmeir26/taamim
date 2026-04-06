@@ -4,7 +4,8 @@ const LETTER_REGEX = /[\u05D0-\u05EA]/g;
 const METEG = '\u05BD';
 const YETIV_MARK = '\u059A';
 const MAHPAKH_MARK = '\u05A4';
-const QADMA_PASHTA_MARK = '\u05A8';
+const PASHTA_MARK = '\u0599';
+const QADMA_MARK = '\u05A8';
 const SEGOL_MARK = '\u0592';
 const TELISHA_GEDOLA_MARK = '\u05A0';
 const TELISHA_KETANA_MARK = '\u05A9';
@@ -51,8 +52,13 @@ function normalizeTypedTaamim(text: string): string {
       continue;
     }
 
-    if (character === QADMA_PASHTA_MARK) {
+    if (character === PASHTA_MARK) {
       normalized += PASHTA_TOKEN;
+      continue;
+    }
+
+    if (character === QADMA_MARK) {
+      normalized += QADMA_TOKEN;
       continue;
     }
 
@@ -88,7 +94,7 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
       .at(-1)?.index ?? -1;
   const qadmaPashtaPositions = Array.from(word)
     .map((character, index) => ({ character, index }))
-    .filter(({ character }) => character === QADMA_PASHTA_MARK)
+    .filter(({ character }) => character === PASHTA_MARK)
     .map(({ index }) => index);
   const hasDoubledPashta = qadmaPashtaPositions.length > 1;
   let pashtaEmitted = false;
@@ -128,7 +134,7 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
       continue;
     }
 
-    if (character === QADMA_PASHTA_MARK) {
+    if (character === PASHTA_MARK) {
       const isPashta = hasDoubledPashta || index > lastLetterIndex;
       if (isPashta) {
         if (!pashtaEmitted) {
@@ -139,6 +145,11 @@ function normalizeWordTaamim(word: string, keepMetegIndex: number): string {
       } else {
         normalized += QADMA_TOKEN;
       }
+      continue;
+    }
+
+    if (character === QADMA_MARK) {
+      normalized += QADMA_TOKEN;
       continue;
     }
 
@@ -267,7 +278,7 @@ export function displayTaamimCharacter(character: string): string {
   }
 
   if (character === QADMA_TOKEN || character === PASHTA_TOKEN) {
-    return '֨';
+    return character === PASHTA_TOKEN ? '֙' : '֨';
   }
 
   if (character === ZARQA_TOKEN) {
