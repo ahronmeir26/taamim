@@ -51,6 +51,10 @@ button {
   gap: 6px;
 }
 
+.mobile-swipe-hint {
+  display: none;
+}
+
 .composer-shell {
   max-height: 18rem;
   opacity: 1;
@@ -254,10 +258,7 @@ button {
 
 .browser__instruction {
   margin-top: 8px;
-  padding: 7px 10px;
-  border-radius: 16px;
-  background: rgba(142, 95, 29, 0.1);
-  border: 1px solid rgba(142, 95, 29, 0.18);
+  padding: 0 2px;
   color: #5b4018;
   font-size: 0.84rem;
 }
@@ -348,8 +349,8 @@ button {
 
 .taamim-keyboard {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(108px, 1fr));
-  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(88px, 1fr));
+  gap: 6px;
   width: 100%;
 }
 
@@ -405,16 +406,33 @@ button {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 4px;
+  gap: 2px;
   width: 100%;
-  min-height: 3rem;
-  border-radius: 14px;
+  min-height: 2.45rem;
+  border-radius: 12px;
+  padding: 4px 8px;
 }
 
 .taamim-keyboard__mark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 1.35rem;
   font-family: "SBL Hebrew", "Times New Roman", serif;
-  font-size: 1.15rem;
+  font-size: 1.8rem;
   line-height: 1;
+}
+
+.taamim-keyboard__mark--low {
+  transform: translateY(-0.42em);
+}
+
+.taamim-keyboard__mark--high {
+  transform: translateY(0.28em);
+}
+
+.taamim-keyboard__mark--yetiv {
+  transform: translateY(-0.46em);
 }
 
 .taamim-keyboard__name {
@@ -457,7 +475,29 @@ p {
   margin-top: 0;
 }
 
-@media (max-width: 1120px) {
+@media (max-width: 640px) {
+  .mobile-swipe-hint {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(142, 95, 29, 0.1);
+    border: 1px solid rgba(142, 95, 29, 0.18);
+    color: #5b4018;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+  }
+
+  .mobile-swipe-hint::before,
+  .mobile-swipe-hint::after {
+    content: '\2194';
+    font-size: 0.95rem;
+    line-height: 1;
+  }
+
   .workspace {
     grid-auto-flow: column;
     grid-auto-columns: minmax(calc(100vw - 28px), 1fr);
@@ -474,7 +514,7 @@ p {
   }
 }
 
-@media (max-width: 720px) {
+@media (max-width: 640px) {
   .app-shell {
     padding: 6px;
   }
@@ -508,7 +548,7 @@ p {
   }
 
   .taamim-keyboard {
-    grid-template-columns: repeat(auto-fit, minmax(96px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(82px, 1fr));
   }
 
   .workspace {

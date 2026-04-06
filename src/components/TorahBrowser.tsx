@@ -11,6 +11,7 @@ type TorahBrowserProps = {
   onBookChange: (book: VerseRecord['book']) => void;
   onChapterChange: (chapter: number) => void;
   onTextSelection: (selectedText: string, ref: string) => void;
+  onScrollStateChange: (shouldHideHeader: boolean) => void;
 };
 
 export function TorahBrowser({
@@ -23,10 +24,12 @@ export function TorahBrowser({
   onBookChange,
   onChapterChange,
   onTextSelection,
+  onScrollStateChange,
 }: TorahBrowserProps) {
   const bookOptions = books;
   const chapterOptions = books.find((book) => book.book === activeBook)?.chapters ?? [];
   const verseRefs = useRef(new Map<string, HTMLElement>());
+  const lastScrollTop = useRef(0);
 
   useEffect(() => {
     if (!scrollRequest) {
@@ -48,6 +51,23 @@ export function TorahBrowser({
   function handleSelection(ref: string) {
     const selectedText = window.getSelection?.()?.toString() ?? '';
     onTextSelection(selectedText, ref);
+  }
+
+  function handleScroll(event: React.UIEvent<HTMLDivElement>) {
+    const nextScrollTop = event.currentTarget.scrollTop;
+    const delta = nextScrollTop - lastScrollTop.current;
+
+    if (delta > 4) {
+      onScrollStateChange(true);
+    }
+
+    lastScrollTop.current = nextScrollTop;
+  }
+
+  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
+    if (event.deltaY < -4 && event.currentTarget.scrollTop <= 0) {
+      onScrollStateChange(false);
+    }
   }
 
   return (
@@ -93,7 +113,7 @@ export function TorahBrowser({
         Select any word or phrase below. The taamim sequence will be built automatically and searched on the right.
       </div>
 
-      <div className="browser__text">
+      <div className="browser__text" onScroll={handleScroll} onWheel={handleWheel}>
         {verses.map((verse) => (
           <article
             key={verse.ref}

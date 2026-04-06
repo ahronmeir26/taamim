@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import type { SearchResult } from '../types';
+import { formatTorahRef } from '../lib/books';
 import { highlightWords } from '../lib/hebrew';
 
 type ResultsListProps = {
@@ -18,19 +19,23 @@ export function ResultsList({ results, activeRef, onSelect, onScrollStateChange 
     setVisibleCount(100);
     lastScrollTop.current = 0;
     onScrollStateChange(false);
-  }, [results]);
+  }, [onScrollStateChange, results]);
 
   function handleScroll(event: React.UIEvent<HTMLDivElement>) {
     const nextScrollTop = event.currentTarget.scrollTop;
     const delta = nextScrollTop - lastScrollTop.current;
 
-    if (nextScrollTop <= 8 || delta < -4) {
-      onScrollStateChange(false);
-    } else if (delta > 4) {
+    if (delta > 4) {
       onScrollStateChange(true);
     }
 
     lastScrollTop.current = nextScrollTop;
+  }
+
+  function handleWheel(event: React.WheelEvent<HTMLDivElement>) {
+    if (event.deltaY < -4 && event.currentTarget.scrollTop <= 0) {
+      onScrollStateChange(false);
+    }
   }
 
   return (
@@ -40,7 +45,7 @@ export function ResultsList({ results, activeRef, onSelect, onScrollStateChange 
         <h2>{results.length} exact matches</h2>
       </header>
 
-      <div className="results__list" onScroll={handleScroll}>
+      <div className="results__list" onScroll={handleScroll} onWheel={handleWheel}>
         {visibleResults.map((result) => (
           <button
             key={`${result.ref}-${result.startWordIndex}-${result.endWordIndex}`}
@@ -49,10 +54,7 @@ export function ResultsList({ results, activeRef, onSelect, onScrollStateChange 
             onClick={() => onSelect(result)}
           >
             <div className="result__meta">
-              <strong>{result.ref}</strong>
-              <span>
-                words {result.startWordIndex + 1}-{result.endWordIndex + 1}
-              </span>
+              <strong>{formatTorahRef(result.ref)}</strong>
             </div>
             <p className="result__text" dir="rtl" lang="he">
               {highlightWords(result.contextText, result.startWordIndex, result.endWordIndex).map(

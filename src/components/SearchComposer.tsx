@@ -15,28 +15,28 @@ type SearchComposerProps = {
 };
 
 const TAAMIM_KEYS = [
-  { label: '֨', value: QADMA_TOKEN, name: 'קַדְמָא' },
-  { label: '֣', name: 'מֻנַּח' },
-  { label: '֘', name: 'זַרְקָא' },
-  { label: '֒', name: 'סְגוֹל' },
-  { label: '֗', name: 'רְבִיעִי' },
-  { label: '֤', value: MAHPAKH_TOKEN, name: 'מַהְפַּךְ' },
-  { label: '֙', value: PASHTA_TOKEN, name: 'פַּשְׁטָא' },
-  { label: '֔', name: 'זָקֵף קָטָן' },
-  { label: '֕', name: 'זָקֵף גָּדוֹל' },
-  { label: '֧', name: 'דַּרְגָּא' },
-  { label: '֛', name: 'תְּבִיר' },
-  { label: '֥', name: 'מֵרְכָא' },
-  { label: '֖', name: 'טִפְחָא' },
-  { label: '֑', name: 'אֶתְנַחְתָּא' },
-  { label: 'ֽ', name: 'סוֹף פָּסוּק' },
-  { label: '֡', name: 'פָּזֵר' },
-  { label: '֩', name: 'תְּלִישָׁא קְטַנָּה' },
-  { label: '֠', name: 'תְּלִישָׁא גְדוֹלָה' },
-  { label: '֜', name: 'אַזְלָא גֵּרֵשׁ' },
-  { label: '֞', name: 'גֵּרְשַׁיִם' },
-  { label: '֚', value: YETIV_TOKEN, name: 'יְתִיב' },
-  { label: '֓', name: 'שַׁלְשֶׁלֶת' },
+  { label: '֨', value: QADMA_TOKEN, name: 'קַדְמָא', position: 'high' },
+  { label: '֣', name: 'מֻנַּח', position: 'low' },
+  { label: '֘', name: 'זַרְקָא', position: 'high' },
+  { label: '֒', name: 'סְגוֹל', position: 'high' },
+  { label: '֗', name: 'רְבִיעִי', position: 'high' },
+  { label: '֤', value: MAHPAKH_TOKEN, name: 'מַהְפַּךְ', position: 'low' },
+  { label: '֙', value: PASHTA_TOKEN, name: 'פַּשְׁטָא', position: 'high' },
+  { label: '֔', name: 'זָקֵף קָטָן', position: 'high' },
+  { label: '֕', name: 'זָקֵף גָּדוֹל', position: 'high' },
+  { label: '֧', name: 'דַּרְגָּא', position: 'low' },
+  { label: '֛', name: 'תְּבִיר', position: 'low' },
+  { label: '֥', name: 'מֵרְכָא', position: 'low' },
+  { label: '֖', name: 'טִפְחָא', position: 'low' },
+  { label: '֑', name: 'אֶתְנַחְתָּא', position: 'low' },
+  { label: 'ֽ', name: 'סוֹף פָּסוּק', position: 'low' },
+  { label: '֡', name: 'פָּזֵר', position: 'high' },
+  { label: '֩', name: 'תְּלִישָׁא קְטַנָּה', position: 'high' },
+  { label: '֠', name: 'תְּלִישָׁא גְדוֹלָה', position: 'high' },
+  { label: '֜', name: 'אַזְלָא גֵּרֵשׁ', position: 'high' },
+  { label: '֞', name: 'גֵּרְשַׁיִם', position: 'high' },
+  { label: '֚', value: YETIV_TOKEN, name: 'יְתִיב', position: 'yetiv' },
+  { label: '֓', name: 'שַׁלְשֶׁלֶת', position: 'high' },
 ];
 
 export function SearchComposer({
@@ -95,7 +95,11 @@ export function SearchComposer({
                 title={key.name}
                 onClick={() => onQueryChange(query + (key.value ?? key.label))}
               >
-                <span className="taamim-keyboard__mark" dir="rtl" lang="he">
+                <span
+                  className={`taamim-keyboard__mark taamim-keyboard__mark--${key.position}`}
+                  dir="rtl"
+                  lang="he"
+                >
                   {key.label}
                 </span>
                 <span className="taamim-keyboard__name" dir="rtl" lang="he">

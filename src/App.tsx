@@ -218,6 +218,10 @@ export default function App() {
         />
       </div>
 
+      <div className="mobile-swipe-hint" aria-hidden="true">
+        Swipe sideways to move between text and matches
+      </div>
+
       <div className="workspace">
         <TorahBrowser
           books={books}
@@ -235,6 +239,7 @@ export default function App() {
           }}
           onChapterChange={setActiveChapter}
           onTextSelection={handleTextSelection}
+          onScrollStateChange={setHeaderHidden}
         />
         <ResultsList
           results={deferredResults}
