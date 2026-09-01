@@ -146,12 +146,6 @@ export function SearchComposer({
               טעמי אמת
             </button>
           </div>
-          <button type="button" className="ghost-button" onClick={onBackspace}>
-            Backspace
-          </button>
-          <button type="button" className="ghost-button" onClick={onClear}>
-            Clear
-          </button>
         </div>
       </div>
 
@@ -164,7 +158,55 @@ export function SearchComposer({
         </div>
 
         <div className="composer__sequence">
-          <span className="eyebrow">Sequence</span>
+          <div className="composer__sequence-header">
+            <span className="eyebrow">Sequence</span>
+            <div className="composer__sequence-actions">
+              <button
+                type="button"
+                className="sequence-action"
+                aria-label="Backspace"
+                title="Backspace"
+                disabled={!query}
+                onClick={onBackspace}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M10.5 5.5H19a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-8.5L4 12l6.5-6.5z"
+                  />
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    d="M16.2 9.8l-4.4 4.4M11.8 9.8l4.4 4.4"
+                  />
+                </svg>
+              </button>
+              <button
+                type="button"
+                className="sequence-action"
+                aria-label="Clear"
+                title="Clear"
+                disabled={!query && !selectedText}
+                onClick={onClear}
+              >
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                  <path
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="1.8"
+                    strokeLinecap="round"
+                    d="M7 7l10 10M17 7L7 17"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
           <div className="taamim-bubbles" dir="rtl" lang="he">
             {query ? (
               Array.from(query).map((mark, index) => (
@@ -173,7 +215,9 @@ export function SearchComposer({
                 </span>
               ))
             ) : (
-              <span className="composer__empty-sequence">Tap a taam, or select text below</span>
+              <span className="composer__empty-sequence" dir="ltr">
+                Tap a taam, or select text below
+              </span>
             )}
           </div>
         </div>

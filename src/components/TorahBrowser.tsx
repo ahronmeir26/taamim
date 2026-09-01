@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react';
 import type { SearchCorpus, VerseRecord } from '../types';
-import { getBookTransliterated, groupBooksBySection } from '../lib/books';
+import { getBookHebrew, getBookTransliterated, groupBooksBySection } from '../lib/books';
 
 type TorahBrowserProps = {
   books: Array<{ book: VerseRecord['book']; bookHebrew: string; chapters: number[] }>;
@@ -10,7 +10,7 @@ type TorahBrowserProps = {
   selectedRef: string | null;
   scrollRequest: { ref: string; nonce: number } | null;
   verses: VerseRecord[];
-  onBookChange: (book: VerseRecord['book']) => void;
+  onBookChange: (book: VerseRecord['book'], chapter?: number) => void;
   onChapterChange: (chapter: number) => void;
   onTextSelection: (selectedText: string, ref: string) => void;
   onScrollStateChange: (shouldHideHeader: boolean) => void;
@@ -31,8 +31,14 @@ export function TorahBrowser({
 }: TorahBrowserProps) {
   const bookOptions = books;
   const bookGroups = useMemo(() => groupBooksBySection(bookOptions), [bookOptions]);
-  const activeBookMeta = books.find((book) => book.book === activeBook);
+  const bookIndex = books.findIndex((book) => book.book === activeBook);
+  const activeBookMeta = books[bookIndex];
   const chapterOptions = activeBookMeta?.chapters ?? [];
+  const chapterIndex = chapterOptions.indexOf(activeChapter);
+  const canGoPrev = bookIndex > 0 || chapterIndex > 0;
+  const canGoNext =
+    bookIndex < books.length - 1 || (chapterIndex >= 0 && chapterIndex < chapterOptions.length - 1);
+  const locationLabel = `${getBookTransliterated(activeBook)} ${activeChapter}`;
   const verseRefs = useRef(new Map<string, HTMLElement>());
   const lastScrollTop = useRef(0);
 
@@ -75,51 +81,89 @@ export function TorahBrowser({
     }
   }
 
+  function goToAdjacentChapter(direction: -1 | 1) {
+    const nextChapterIndex = chapterIndex + direction;
+    if (nextChapterIndex >= 0 && nextChapterIndex < chapterOptions.length) {
+      onChapterChange(chapterOptions[nextChapterIndex]);
+      return;
+    }
+
+    const adjacentBook = books[bookIndex + direction];
+    if (!adjacentBook) {
+      return;
+    }
+
+    const nextChapter =
+      direction === 1
+        ? (adjacentBook.chapters[0] ?? 1)
+        : (adjacentBook.chapters.at(-1) ?? 1);
+    onBookChange(adjacentBook.book, nextChapter);
+  }
+
   return (
     <section className="browser">
       <header className="browser__header">
-        <div>
+        <div className="browser__heading">
           <span className="eyebrow">{corpus === 'emet' ? 'Sifrei Emet' : 'Tanakh'}</span>
-          <h2>
-            <span className="browser__title-he">
-              {getBookTransliterated(activeBook)}
-            </span>
-            <span>{activeChapter}</span>
+          <h2 className="browser__hebrew" dir="rtl" lang="he">
+            {getBookHebrew(activeBook)}
           </h2>
         </div>
-        <div className="browser__controls">
-          <label className="browser__control browser__control--book">
-            <span>Sefer</span>
-            <select
-              className="browser__select browser__select--book"
-              value={activeBook}
-              onChange={(event) => onBookChange(event.target.value as VerseRecord['book'])}
-            >
-              {bookGroups.map((group) => (
-                <optgroup key={group.section} label={group.sectionLabel}>
-                  {group.books.map((book) => (
-                    <option key={book.book} value={book.book}>
-                      {getBookTransliterated(book.book)}
-                    </option>
-                  ))}
-                </optgroup>
-              ))}
-            </select>
-          </label>
-          <label className="browser__control browser__control--chapter">
-            <span>Perek</span>
-            <select
-              className="browser__select browser__select--chapter"
-              value={activeChapter}
-              onChange={(event) => onChapterChange(Number(event.target.value))}
-            >
-              {chapterOptions.map((chapter) => (
-                <option key={chapter} value={chapter}>
-                  {chapter}
-                </option>
-              ))}
-            </select>
-          </label>
+        <div className="browser__location">
+          <button
+            type="button"
+            className="browser__step"
+            aria-label="Previous chapter"
+            disabled={!canGoPrev}
+            onClick={() => goToAdjacentChapter(-1)}
+          >
+            <ChevronIcon direction="prev" />
+          </button>
+          <div className="browser__controls">
+            <label className="browser__control browser__control--book">
+              <span>Sefer</span>
+              <select
+                className="browser__select browser__select--book"
+                value={activeBook}
+                aria-label={`Sefer, ${locationLabel}`}
+                onChange={(event) => onBookChange(event.target.value as VerseRecord['book'])}
+              >
+                {bookGroups.map((group) => (
+                  <optgroup key={group.section} label={group.sectionLabel}>
+                    {group.books.map((book) => (
+                      <option key={book.book} value={book.book}>
+                        {getBookTransliterated(book.book)}
+                      </option>
+                    ))}
+                  </optgroup>
+                ))}
+              </select>
+            </label>
+            <label className="browser__control browser__control--chapter">
+              <span>Perek</span>
+              <select
+                className="browser__select browser__select--chapter"
+                value={activeChapter}
+                aria-label={`Perek ${activeChapter}`}
+                onChange={(event) => onChapterChange(Number(event.target.value))}
+              >
+                {chapterOptions.map((chapter) => (
+                  <option key={chapter} value={chapter}>
+                    {chapter}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+          <button
+            type="button"
+            className="browser__step"
+            aria-label="Next chapter"
+            disabled={!canGoNext}
+            onClick={() => goToAdjacentChapter(1)}
+          >
+            <ChevronIcon direction="next" />
+          </button>
         </div>
       </header>
 
@@ -157,5 +201,20 @@ export function TorahBrowser({
         ))}
       </div>
     </section>
+  );
+}
+
+function ChevronIcon({ direction }: { direction: 'prev' | 'next' }) {
+  return (
+    <svg viewBox="0 0 16 16" width="16" height="16" aria-hidden="true" focusable="false">
+      <path
+        d={direction === 'prev' ? 'M10.2 3.2 5.4 8l4.8 4.8' : 'M5.8 3.2 10.6 8 5.8 12.8'}
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="1.7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
   );
 }

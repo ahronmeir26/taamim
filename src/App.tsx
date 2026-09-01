@@ -272,9 +272,9 @@ export default function App() {
           selectedRef={activeResult?.ref ?? selectedSourceRef}
           scrollRequest={scrollRequest}
           verses={chapterVerses}
-          onBookChange={(book) => {
+          onBookChange={(book, chapter) => {
             setActiveBook(book);
-            setActiveChapter(books.find((item) => item.book === book)?.chapters[0] ?? 1);
+            setActiveChapter(chapter ?? books.find((item) => item.book === book)?.chapters[0] ?? 1);
             setActiveResult(null);
             setSelectedSourceRef(null);
             setScrollRequest(null);
