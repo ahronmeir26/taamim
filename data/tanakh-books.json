@@ -1,41 +1,353 @@
 [
-  { "english": "Genesis", "hebrew": "בראשית", "transliterated": "Bereishis", "section": "torah", "sectionLabel": "תורה", "trop": "prose" },
-  { "english": "Exodus", "hebrew": "שמות", "transliterated": "Shemos", "section": "torah", "sectionLabel": "תורה", "trop": "prose" },
-  { "english": "Leviticus", "hebrew": "ויקרא", "transliterated": "Vayikra", "section": "torah", "sectionLabel": "תורה", "trop": "prose" },
-  { "english": "Numbers", "hebrew": "במדבר", "transliterated": "Bamidbar", "section": "torah", "sectionLabel": "תורה", "trop": "prose" },
-  { "english": "Deuteronomy", "hebrew": "דברים", "transliterated": "Devarim", "section": "torah", "sectionLabel": "תורה", "trop": "prose" },
-  { "english": "Joshua", "hebrew": "יהושע", "transliterated": "Yehoshua", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Judges", "hebrew": "שופטים", "transliterated": "Shoftim", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "I Samuel", "hebrew": "שמואל א", "transliterated": "Shmuel I", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "II Samuel", "hebrew": "שמואל ב", "transliterated": "Shmuel II", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "I Kings", "hebrew": "מלכים א", "transliterated": "Melachim I", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "II Kings", "hebrew": "מלכים ב", "transliterated": "Melachim II", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Isaiah", "hebrew": "ישעיהו", "transliterated": "Yeshayahu", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Jeremiah", "hebrew": "ירמיהו", "transliterated": "Yirmiyahu", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Ezekiel", "hebrew": "יחזקאל", "transliterated": "Yechezkel", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Hosea", "hebrew": "הושע", "transliterated": "Hoshea", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Joel", "hebrew": "יואל", "transliterated": "Yoel", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Amos", "hebrew": "עמוס", "transliterated": "Amos", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Obadiah", "hebrew": "עובדיה", "transliterated": "Ovadiah", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Jonah", "hebrew": "יונה", "transliterated": "Yonah", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Micah", "hebrew": "מיכה", "transliterated": "Michah", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Nahum", "hebrew": "נחום", "transliterated": "Nachum", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Habakkuk", "hebrew": "חבקוק", "transliterated": "Chavakuk", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Zephaniah", "hebrew": "צפניה", "transliterated": "Tzefaniah", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Haggai", "hebrew": "חגי", "transliterated": "Chaggai", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Zechariah", "hebrew": "זכריה", "transliterated": "Zecharyah", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Malachi", "hebrew": "מלאכי", "transliterated": "Malachi", "section": "neviim", "sectionLabel": "נביאים", "trop": "prose" },
-  { "english": "Psalms", "hebrew": "תהלים", "transliterated": "Tehillim", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "emet" },
-  { "english": "Proverbs", "hebrew": "משלי", "transliterated": "Mishlei", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "emet" },
-  { "english": "Job", "hebrew": "איוב", "transliterated": "Iyov", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "emet" },
-  { "english": "Song of Songs", "hebrew": "שיר השירים", "transliterated": "Shir Hashirim", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Ruth", "hebrew": "רות", "transliterated": "Rus", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Lamentations", "hebrew": "איכה", "transliterated": "Eichah", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Ecclesiastes", "hebrew": "קהלת", "transliterated": "Koheles", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Esther", "hebrew": "אסתר", "transliterated": "Esther", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Daniel", "hebrew": "דניאל", "transliterated": "Daniel", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Ezra", "hebrew": "עזרא", "transliterated": "Ezra", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "Nehemiah", "hebrew": "נחמיה", "transliterated": "Nechemiah", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "I Chronicles", "hebrew": "דברי הימים א", "transliterated": "Divrei Hayamim I", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" },
-  { "english": "II Chronicles", "hebrew": "דברי הימים ב", "transliterated": "Divrei Hayamim II", "section": "ketuvim", "sectionLabel": "כתובים", "trop": "prose" }
+  {
+    "english": "Genesis",
+    "hebrew": "בראשית",
+    "transliterated": "Bereishis",
+    "section": "torah",
+    "sectionLabel": "תורה",
+    "trop": "prose",
+    "chapterCount": 50
+  },
+  {
+    "english": "Exodus",
+    "hebrew": "שמות",
+    "transliterated": "Shemos",
+    "section": "torah",
+    "sectionLabel": "תורה",
+    "trop": "prose",
+    "chapterCount": 40
+  },
+  {
+    "english": "Leviticus",
+    "hebrew": "ויקרא",
+    "transliterated": "Vayikra",
+    "section": "torah",
+    "sectionLabel": "תורה",
+    "trop": "prose",
+    "chapterCount": 27
+  },
+  {
+    "english": "Numbers",
+    "hebrew": "במדבר",
+    "transliterated": "Bamidbar",
+    "section": "torah",
+    "sectionLabel": "תורה",
+    "trop": "prose",
+    "chapterCount": 36
+  },
+  {
+    "english": "Deuteronomy",
+    "hebrew": "דברים",
+    "transliterated": "Devarim",
+    "section": "torah",
+    "sectionLabel": "תורה",
+    "trop": "prose",
+    "chapterCount": 34
+  },
+  {
+    "english": "Joshua",
+    "hebrew": "יהושע",
+    "transliterated": "Yehoshua",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 24
+  },
+  {
+    "english": "Judges",
+    "hebrew": "שופטים",
+    "transliterated": "Shoftim",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 21
+  },
+  {
+    "english": "I Samuel",
+    "hebrew": "שמואל א",
+    "transliterated": "Shmuel I",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 31
+  },
+  {
+    "english": "II Samuel",
+    "hebrew": "שמואל ב",
+    "transliterated": "Shmuel II",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 24
+  },
+  {
+    "english": "I Kings",
+    "hebrew": "מלכים א",
+    "transliterated": "Melachim I",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 22
+  },
+  {
+    "english": "II Kings",
+    "hebrew": "מלכים ב",
+    "transliterated": "Melachim II",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 25
+  },
+  {
+    "english": "Isaiah",
+    "hebrew": "ישעיהו",
+    "transliterated": "Yeshayahu",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 66
+  },
+  {
+    "english": "Jeremiah",
+    "hebrew": "ירמיהו",
+    "transliterated": "Yirmiyahu",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 52
+  },
+  {
+    "english": "Ezekiel",
+    "hebrew": "יחזקאל",
+    "transliterated": "Yechezkel",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 48
+  },
+  {
+    "english": "Hosea",
+    "hebrew": "הושע",
+    "transliterated": "Hoshea",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 14
+  },
+  {
+    "english": "Joel",
+    "hebrew": "יואל",
+    "transliterated": "Yoel",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 4
+  },
+  {
+    "english": "Amos",
+    "hebrew": "עמוס",
+    "transliterated": "Amos",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 9
+  },
+  {
+    "english": "Obadiah",
+    "hebrew": "עובדיה",
+    "transliterated": "Ovadiah",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 1
+  },
+  {
+    "english": "Jonah",
+    "hebrew": "יונה",
+    "transliterated": "Yonah",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 4
+  },
+  {
+    "english": "Micah",
+    "hebrew": "מיכה",
+    "transliterated": "Michah",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 7
+  },
+  {
+    "english": "Nahum",
+    "hebrew": "נחום",
+    "transliterated": "Nachum",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 3
+  },
+  {
+    "english": "Habakkuk",
+    "hebrew": "חבקוק",
+    "transliterated": "Chavakuk",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 3
+  },
+  {
+    "english": "Zephaniah",
+    "hebrew": "צפניה",
+    "transliterated": "Tzefaniah",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 3
+  },
+  {
+    "english": "Haggai",
+    "hebrew": "חגי",
+    "transliterated": "Chaggai",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 2
+  },
+  {
+    "english": "Zechariah",
+    "hebrew": "זכריה",
+    "transliterated": "Zecharyah",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 14
+  },
+  {
+    "english": "Malachi",
+    "hebrew": "מלאכי",
+    "transliterated": "Malachi",
+    "section": "neviim",
+    "sectionLabel": "נביאים",
+    "trop": "prose",
+    "chapterCount": 3
+  },
+  {
+    "english": "Psalms",
+    "hebrew": "תהלים",
+    "transliterated": "Tehillim",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "emet",
+    "chapterCount": 150
+  },
+  {
+    "english": "Proverbs",
+    "hebrew": "משלי",
+    "transliterated": "Mishlei",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "emet",
+    "chapterCount": 31
+  },
+  {
+    "english": "Job",
+    "hebrew": "איוב",
+    "transliterated": "Iyov",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "emet",
+    "chapterCount": 42
+  },
+  {
+    "english": "Song of Songs",
+    "hebrew": "שיר השירים",
+    "transliterated": "Shir Hashirim",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 8
+  },
+  {
+    "english": "Ruth",
+    "hebrew": "רות",
+    "transliterated": "Rus",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 4
+  },
+  {
+    "english": "Lamentations",
+    "hebrew": "איכה",
+    "transliterated": "Eichah",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 5
+  },
+  {
+    "english": "Ecclesiastes",
+    "hebrew": "קהלת",
+    "transliterated": "Koheles",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 12
+  },
+  {
+    "english": "Esther",
+    "hebrew": "אסתר",
+    "transliterated": "Esther",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 10
+  },
+  {
+    "english": "Daniel",
+    "hebrew": "דניאל",
+    "transliterated": "Daniel",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 12
+  },
+  {
+    "english": "Ezra",
+    "hebrew": "עזרא",
+    "transliterated": "Ezra",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 10
+  },
+  {
+    "english": "Nehemiah",
+    "hebrew": "נחמיה",
+    "transliterated": "Nechemiah",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 13
+  },
+  {
+    "english": "I Chronicles",
+    "hebrew": "דברי הימים א",
+    "transliterated": "Divrei Hayamim I",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 29
+  },
+  {
+    "english": "II Chronicles",
+    "hebrew": "דברי הימים ב",
+    "transliterated": "Divrei Hayamim II",
+    "section": "ketuvim",
+    "sectionLabel": "כתובים",
+    "trop": "prose",
+    "chapterCount": 36
+  }
 ]

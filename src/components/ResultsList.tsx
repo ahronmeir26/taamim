@@ -24,6 +24,7 @@ type ResultsListProps = {
   hasQuery: boolean;
   pending: boolean;
   corpus: SearchCorpus;
+  includeNach: boolean;
   onSelect: (result: SearchResult) => void;
   onScrollStateChange: (shouldHideHeader: boolean) => void;
 };
@@ -34,6 +35,7 @@ export function ResultsList({
   hasQuery,
   pending,
   corpus,
+  includeNach,
   onSelect,
   onScrollStateChange,
 }: ResultsListProps) {
@@ -91,12 +93,12 @@ export function ResultsList({
   );
   const isFiltered = sectionFilter !== 'all' || bookFilter !== 'all';
   const showFilters = hasQuery && results.length > 0;
-  const showSectionFilters = showFilters && corpus === 'torah';
+  const showSectionFilters = showFilters && corpus === 'torah' && includeNach;
 
   useEffect(() => {
     setSectionFilter('all');
     setBookFilter('all');
-  }, [corpus]);
+  }, [corpus, includeNach]);
 
   useEffect(() => {
     if (sectionFilter !== 'all' && !results.some((result) => getBookSection(result.book) === sectionFilter)) {
@@ -233,7 +235,9 @@ export function ResultsList({
           <p className="results__empty">
             {corpus === 'emet'
               ? 'Highlight a phrase in Sifrei Emet, or tap taamim to search.'
-              : 'Highlight a phrase in Tanakh, or tap taamim to search.'}
+              : includeNach
+                ? 'Highlight a phrase in Tanakh, or tap taamim to search.'
+                : 'Highlight a phrase in Torah, or tap taamim to search.'}
           </p>
         ) : visibleResults.length === 0 ? (
           <p className="results__empty">

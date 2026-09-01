@@ -1,11 +1,15 @@
 {
   "framework": "vite",
+  "functions": {
+    "api/*.js": {
+      "includeFiles": "data/*.json"
+    }
+  },
   "rewrites": [
-    { "source": "/taamim/api/books", "destination": "/api/books" },
-    { "source": "/taamim/api/chapter", "destination": "/api/chapter" },
-    { "source": "/taamim/api/search", "destination": "/api/search" },
+    { "source": "/taamim/api/:path*", "destination": "/api/:path*" },
     { "source": "/taamim/assets/:path*", "destination": "/assets/:path*" },
     { "source": "/taamim", "destination": "/index.html" },
+    { "source": "/taamim/", "destination": "/index.html" },
     { "source": "/taamim/:path*", "destination": "/index.html" }
   ]
 }

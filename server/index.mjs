@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
-import { resolveCorpus } from '../lib/taamim.mjs';
+import { resolveCorpus, resolveNach } from '../lib/taamim.mjs';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const app = express();
@@ -11,7 +11,7 @@ const DIST_DIR = path.resolve('dist');
 const searchResponseCache = new Map();
 
 async function sendBooks(request, response) {
-  response.json(await getBooks(resolveCorpus(request.query.corpus)));
+  response.json(await getBooks(resolveCorpus(request.query.corpus), resolveNach(request.query.nach)));
 }
 
 async function sendChapter(request, response) {
@@ -31,14 +31,15 @@ async function sendChapter(request, response) {
 async function sendSearch(request, response) {
   const query = String(request.query.query ?? '');
   const corpus = resolveCorpus(request.query.corpus);
-  const cacheKey = `${corpus}:${query}`;
+  const includeNach = resolveNach(request.query.nach);
+  const cacheKey = `${corpus}:${includeNach ? 'nach' : 'torah'}:${query}`;
   const cached = searchResponseCache.get(cacheKey);
   if (cached) {
     response.json(cached);
     return;
   }
 
-  const results = await searchTaamim(query, corpus);
+  const results = await searchTaamim(query, corpus, includeNach);
   searchResponseCache.set(cacheKey, results);
   response.json(results);
 }

@@ -2,8 +2,9 @@ import { startTransition, useDeferredValue, useEffect, useMemo, useRef, useState
 import { ResultsList } from './components/ResultsList';
 import { SearchComposer } from './components/SearchComposer';
 import { TorahBrowser } from './components/TorahBrowser';
+import { getBookSummaries } from './lib/books';
 import { extractTaamim } from './lib/hebrew';
-import type { BookSummary, SearchCorpus, SearchResult, VerseRecord } from './types';
+import type { SearchCorpus, SearchResult, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -33,7 +34,8 @@ function StatusScreen({
 
 export default function App() {
   const [corpus, setCorpus] = useState<SearchCorpus>('torah');
-  const [books, setBooks] = useState<BookSummary[]>([]);
+  const [includeNach, setIncludeNach] = useState(false);
+  const books = useMemo(() => getBookSummaries(corpus, includeNach), [corpus, includeNach]);
   const [chapterVerses, setChapterVerses] = useState<VerseRecord[]>([]);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
   const [query, setQuery] = useState('');
@@ -90,57 +92,35 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    async function loadBooks() {
-      try {
-        const response = await fetch(`${API_BASE}/books?corpus=${corpus}`);
-        if (!response.ok) {
-          throw new Error(`Failed to load books: ${response.status}`);
-        }
-
-        const payload = (await response.json()) as BookSummary[];
-        const firstBook = payload[0];
-        setBooks(payload);
-        if (firstBook) {
-          setActiveBook(firstBook.book);
-          setActiveChapter(firstBook.chapters[0] ?? 1);
-        }
-        setLoadState('ready');
-      } catch (error) {
-        console.error(error);
-        setLoadState('error');
-      }
-    }
-
-    void loadBooks();
-  }, [corpus]);
-
-  useEffect(() => {
-    if (loadState !== 'ready') {
-      return;
-    }
-
     async function loadChapter() {
       const cacheKey = `${corpus}:${activeBook}:${activeChapter}`;
       const cached = chapterCache.current.get(cacheKey);
       if (cached) {
         setChapterVerses(cached);
+        setLoadState('ready');
         return;
       }
 
-      const response = await fetch(
-        `${API_BASE}/chapter?book=${encodeURIComponent(activeBook)}&chapter=${activeChapter}&corpus=${corpus}`,
-      );
-      if (!response.ok) {
-        throw new Error(`Failed to load chapter: ${response.status}`);
-      }
+      try {
+        const response = await fetch(
+          `${API_BASE}/chapter?book=${encodeURIComponent(activeBook)}&chapter=${activeChapter}&corpus=${corpus}`,
+        );
+        if (!response.ok) {
+          throw new Error(`Failed to load chapter: ${response.status}`);
+        }
 
-      const payload = (await response.json()) as VerseRecord[];
-      chapterCache.current.set(cacheKey, payload);
-      setChapterVerses(payload);
+        const payload = (await response.json()) as VerseRecord[];
+        chapterCache.current.set(cacheKey, payload);
+        setChapterVerses(payload);
+        setLoadState('ready');
+      } catch (error) {
+        console.error(error);
+        setLoadState((current) => (current === 'ready' ? current : 'error'));
+      }
     }
 
     void loadChapter();
-  }, [activeBook, activeChapter, corpus, loadState]);
+  }, [activeBook, activeChapter, corpus]);
 
   useEffect(() => {
     if (!debouncedSearchQuery) {
@@ -153,7 +133,7 @@ export default function App() {
     const abortController = new AbortController();
 
     async function runSearch() {
-      const cacheKey = `${corpus}:${debouncedSearchQuery}`;
+      const cacheKey = `${corpus}:${includeNach ? 'nach' : 'core'}:${debouncedSearchQuery}`;
       const cached = searchCache.current.get(cacheKey);
       if (cached) {
         startTransition(() => {
@@ -163,7 +143,7 @@ export default function App() {
       }
 
       const response = await fetch(
-        `${API_BASE}/search?query=${encodeURIComponent(debouncedSearchQuery)}&corpus=${corpus}`,
+        `${API_BASE}/search?query=${encodeURIComponent(debouncedSearchQuery)}&corpus=${corpus}${includeNach ? '&nach=1' : ''}`,
         {
           signal: abortController.signal,
         },
@@ -190,7 +170,7 @@ export default function App() {
     return () => {
       abortController.abort();
     };
-  }, [corpus, debouncedSearchQuery]);
+  }, [corpus, debouncedSearchQuery, includeNach]);
 
   function handleTextSelection(nextSelectedText: string, ref: string) {
     if (!nextSelectedText.trim()) {
@@ -209,6 +189,8 @@ export default function App() {
       return;
     }
 
+    const nextBooks = getBookSummaries(nextCorpus, nextCorpus === 'torah' && includeNach);
+    const firstBook = nextBooks[0];
     setCorpus(nextCorpus);
     setQuery('');
     setSelectedText('');
@@ -218,6 +200,25 @@ export default function App() {
     setSelectedSourceRef(null);
     setScrollRequest(null);
     setHeaderHidden(false);
+    if (firstBook) {
+      setActiveBook(firstBook.book);
+      setActiveChapter(firstBook.chapters[0] ?? 1);
+    }
+  }
+
+  function handleNachChange(nextIncludeNach: boolean) {
+    if (nextIncludeNach === includeNach) {
+      return;
+    }
+
+    setIncludeNach(nextIncludeNach);
+    if (!nextIncludeNach && corpus === 'torah') {
+      const torahBooks = getBookSummaries('torah', false);
+      if (!torahBooks.some((book) => book.book === activeBook) && torahBooks[0]) {
+        setActiveBook(torahBooks[0].book);
+        setActiveChapter(torahBooks[0].chapters[0] ?? 1);
+      }
+    }
   }
 
   function handleResultSelect(result: SearchResult) {
@@ -228,12 +229,12 @@ export default function App() {
   }
 
   if (loadState === 'loading') {
-    return <StatusScreen loading title="Preparing the Tanakh index" copy="Loading books, chapters, and taamim." />;
+    return <StatusScreen loading title="Preparing the Torah text" copy="Loading the first chapter." />;
   }
 
   if (loadState === 'error') {
     return (
-      <StatusScreen title="Could not load the Tanakh index" copy="Check that the local API is running, then refresh." />
+      <StatusScreen title="Could not load the text" copy="Refresh the page to try again." />
     );
   }
 
@@ -242,9 +243,11 @@ export default function App() {
       <div className={headerHidden ? 'composer-shell is-hidden' : 'composer-shell'}>
         <SearchComposer
           corpus={corpus}
+          includeNach={includeNach}
           query={query}
           selectedText={selectedText}
           onCorpusChange={handleCorpusChange}
+          onNachChange={handleNachChange}
           onQueryChange={setQuery}
           onBackspace={() => setQuery((current) => current.slice(0, -1))}
           onClear={() => {
@@ -267,6 +270,7 @@ export default function App() {
         <TorahBrowser
           books={books}
           corpus={corpus}
+          includeNach={includeNach}
           activeBook={activeBook}
           activeChapter={activeChapter}
           selectedRef={activeResult?.ref ?? selectedSourceRef}
@@ -289,6 +293,7 @@ export default function App() {
           hasQuery={Boolean(debouncedSearchQuery)}
           pending={resultsPending}
           corpus={corpus}
+          includeNach={includeNach}
           onSelect={handleResultSelect}
           onScrollStateChange={setHeaderHidden}
         />

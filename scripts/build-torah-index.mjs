@@ -212,8 +212,10 @@ function buildVerseRecord(book, chapterIndex, verseIndex, verseText, system) {
   };
 }
 
-const tanakhVerses = [];
+const torahVerses = [];
+const nachVerses = [];
 const emetVerses = [];
+const chapterCounts = {};
 
 for (const book of BOOKS) {
   const inputPath = path.resolve('data/raw', `${book.english}.json`);
@@ -233,7 +235,14 @@ for (const book of BOOKS) {
         return;
       }
 
-      tanakhVerses.push(buildVerseRecord(book, chapterIndex, verseIndex, verseText, 'torah'));
+      const record = buildVerseRecord(book, chapterIndex, verseIndex, verseText, 'torah');
+      chapterCounts[book.english] = Math.max(chapterCounts[book.english] ?? 0, record.c);
+
+      if (book.section === 'torah') {
+        torahVerses.push(record);
+      } else {
+        nachVerses.push(record);
+      }
 
       if (book.trop === 'emet') {
         emetVerses.push(buildVerseRecord(book, chapterIndex, verseIndex, verseText, 'emet'));
@@ -244,9 +253,23 @@ for (const book of BOOKS) {
 
 await mkdir(path.resolve('data'), { recursive: true });
 
-const tanakhPath = path.resolve('data/tanakh-compact.json');
-await writeFile(tanakhPath, JSON.stringify(tanakhVerses));
-console.log(`Wrote ${tanakhPath} (${tanakhVerses.length} verses)`);
+const booksPath = path.resolve('data/tanakh-books.json');
+await writeFile(
+  booksPath,
+  `${JSON.stringify(
+    BOOKS.map((book) => ({ ...book, chapterCount: chapterCounts[book.english] ?? 0 })),
+    null,
+    2,
+  )}\n`,
+);
+
+const torahPath = path.resolve('data/torah-compact.json');
+await writeFile(torahPath, JSON.stringify(torahVerses));
+console.log(`Wrote ${torahPath} (${torahVerses.length} verses)`);
+
+const nachPath = path.resolve('data/nach-compact.json');
+await writeFile(nachPath, JSON.stringify(nachVerses));
+console.log(`Wrote ${nachPath} (${nachVerses.length} verses)`);
 
 const emetPath = path.resolve('data/emet-compact.json');
 await writeFile(emetPath, JSON.stringify(emetVerses));

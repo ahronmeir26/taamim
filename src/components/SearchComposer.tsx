@@ -28,9 +28,11 @@ import type { SearchCorpus } from '../types';
 
 type SearchComposerProps = {
   corpus: SearchCorpus;
+  includeNach: boolean;
   query: string;
   selectedText: string;
   onCorpusChange: (corpus: SearchCorpus) => void;
+  onNachChange: (includeNach: boolean) => void;
   onQueryChange: (value: string) => void;
   onBackspace: () => void;
   onClear: () => void;
@@ -102,16 +104,22 @@ const EMET_KEYS = [
 
 export function SearchComposer({
   corpus,
+  includeNach,
   query,
   selectedText,
   onCorpusChange,
+  onNachChange,
   onQueryChange,
   onBackspace,
   onClear,
 }: SearchComposerProps) {
   const keys = corpus === 'emet' ? EMET_KEYS : TORAH_KEYS;
   const selectedPlaceholder =
-    corpus === 'emet' ? 'Highlight a phrase in Sifrei Emet' : 'Highlight a phrase in Tanakh';
+    corpus === 'emet'
+      ? 'Highlight a phrase in Sifrei Emet'
+      : includeNach
+        ? 'Highlight a phrase in Tanakh'
+        : 'Highlight a phrase in Torah';
 
   return (
     <section className="composer">
@@ -122,7 +130,13 @@ export function SearchComposer({
           </span>
           <div className="brand__copy">
             <p className="eyebrow">Taamim</p>
-            <h1>{corpus === 'emet' ? 'Search by טעמי אמת' : 'Search Tanakh by cantillation'}</h1>
+            <h1>
+              {corpus === 'emet'
+                ? 'Search by טעמי אמת'
+                : includeNach
+                  ? 'Search Tanakh by cantillation'
+                  : 'Search Torah by cantillation'}
+            </h1>
           </div>
         </div>
         <div className="composer__actions">
@@ -146,6 +160,16 @@ export function SearchComposer({
               טעמי אמת
             </button>
           </div>
+          {corpus === 'torah' ? (
+            <button
+              type="button"
+              className={includeNach ? 'nach-toggle is-active' : 'nach-toggle'}
+              aria-pressed={includeNach}
+              onClick={() => onNachChange(!includeNach)}
+            >
+              {includeNach ? 'Nach on' : 'Add Nach'}
+            </button>
+          ) : null}
         </div>
       </div>
 

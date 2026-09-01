@@ -1,5 +1,5 @@
 import tanakhBooks from '../../data/tanakh-books.json';
-import type { TanakhBook, TanakhSection } from '../types';
+import type { BookSummary, SearchCorpus, TanakhBook, TanakhSection } from '../types';
 
 type TanakhBookRecord = {
   english: TanakhBook;
@@ -8,6 +8,7 @@ type TanakhBookRecord = {
   section: TanakhSection;
   sectionLabel: string;
   trop?: 'prose' | 'emet';
+  chapterCount: number;
 };
 
 const BOOKS = tanakhBooks as TanakhBookRecord[];
@@ -83,4 +84,22 @@ export function groupBooksBySection<T extends { book: TanakhBook }>(
   }
 
   return groups;
+}
+
+export function getBookSummaries(corpus: SearchCorpus, includeNach = false): BookSummary[] {
+  return BOOKS.filter((book) => {
+    if (corpus === 'emet') {
+      return book.trop === 'emet';
+    }
+
+    if (book.section === 'torah') {
+      return true;
+    }
+
+    return includeNach;
+  }).map((book) => ({
+    book: book.english,
+    bookHebrew: book.hebrew,
+    chapters: Array.from({ length: book.chapterCount }, (_, index) => index + 1),
+  }));
 }

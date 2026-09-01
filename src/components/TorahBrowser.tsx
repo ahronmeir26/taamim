@@ -5,6 +5,7 @@ import { getBookHebrew, getBookTransliterated, groupBooksBySection } from '../li
 type TorahBrowserProps = {
   books: Array<{ book: VerseRecord['book']; bookHebrew: string; chapters: number[] }>;
   corpus: SearchCorpus;
+  includeNach: boolean;
   activeBook: VerseRecord['book'];
   activeChapter: number;
   selectedRef: string | null;
@@ -19,6 +20,7 @@ type TorahBrowserProps = {
 export function TorahBrowser({
   books,
   corpus,
+  includeNach,
   activeBook,
   activeChapter,
   selectedRef,
@@ -104,7 +106,9 @@ export function TorahBrowser({
     <section className="browser">
       <header className="browser__header">
         <div className="browser__heading">
-          <span className="eyebrow">{corpus === 'emet' ? 'Sifrei Emet' : 'Tanakh'}</span>
+          <span className="eyebrow">
+            {corpus === 'emet' ? 'Sifrei Emet' : includeNach ? 'Tanakh' : 'Torah'}
+          </span>
           <h2 className="browser__hebrew" dir="rtl" lang="he">
             {getBookHebrew(activeBook)}
           </h2>

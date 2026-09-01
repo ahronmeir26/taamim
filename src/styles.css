@@ -466,6 +466,28 @@ select:focus-visible {
   color: var(--ink);
 }
 
+.nach-toggle {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-muted);
+  color: var(--ink-soft);
+  padding: 8px 14px;
+  font-family: var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.nach-toggle.is-active {
+  background: var(--ink);
+  color: var(--paper);
+  border-color: var(--ink);
+}
+
+.nach-toggle:hover:not(.is-active) {
+  color: var(--ink);
+}
+
 .composer__selected-text,
 .composer__sequence {
   min-width: 0;
