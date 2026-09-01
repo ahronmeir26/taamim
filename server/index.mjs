@@ -1,6 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
+import { resolveCorpus } from '../lib/taamim.mjs';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const app = express();
@@ -9,12 +10,16 @@ const API_BASE_PATH = `${APP_BASE_PATH}/api`;
 const DIST_DIR = path.resolve('dist');
 const searchResponseCache = new Map();
 
-async function sendBooks(_request, response) {
-  response.json(await getBooks());
+async function sendBooks(request, response) {
+  response.json(await getBooks(resolveCorpus(request.query.corpus)));
 }
 
 async function sendChapter(request, response) {
-  const verses = await getChapter(String(request.query.book ?? ''), Number(request.query.chapter ?? 0));
+  const verses = await getChapter(
+    String(request.query.book ?? ''),
+    Number(request.query.chapter ?? 0),
+    resolveCorpus(request.query.corpus),
+  );
   if (!verses) {
     response.status(404).json({ error: 'Chapter not found' });
     return;
@@ -25,14 +30,16 @@ async function sendChapter(request, response) {
 
 async function sendSearch(request, response) {
   const query = String(request.query.query ?? '');
-  const cached = searchResponseCache.get(query);
+  const corpus = resolveCorpus(request.query.corpus);
+  const cacheKey = `${corpus}:${query}`;
+  const cached = searchResponseCache.get(cacheKey);
   if (cached) {
     response.json(cached);
     return;
   }
 
-  const results = await searchTaamim(query);
-  searchResponseCache.set(query, results);
+  const results = await searchTaamim(query, corpus);
+  searchResponseCache.set(cacheKey, results);
   response.json(results);
 }
 
