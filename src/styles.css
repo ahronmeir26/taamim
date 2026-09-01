@@ -274,6 +274,11 @@ select:focus-visible {
   gap: 16px;
 }
 
+.results__header {
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
 .composer__body,
 .composer__meta {
   margin-top: 10px;
@@ -378,6 +383,36 @@ select:focus-visible {
   align-items: center;
 }
 
+.mode-toggle {
+  display: flex;
+  padding: 3px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-muted);
+}
+
+.mode-toggle button {
+  border: 0;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--ink-soft);
+  padding: 6px 12px;
+  font-family: "Noto Sans Hebrew", var(--font-ui);
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.2;
+}
+
+.mode-toggle button.is-active {
+  background: var(--paper);
+  color: var(--ink);
+  box-shadow: 0 1px 0 rgba(28, 23, 18, 0.06);
+}
+
+.mode-toggle button:hover:not(.is-active) {
+  color: var(--ink);
+}
+
 .composer__selected-text,
 .composer__sequence {
   min-width: 0;
@@ -451,6 +486,62 @@ select:focus-visible {
 
 .results__list {
   flex: 1;
+}
+
+.results__book-filter {
+  min-width: 9.5rem;
+  flex-shrink: 0;
+}
+
+.results__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+  flex-shrink: 0;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper-muted);
+  color: var(--ink);
+  padding: 6px 11px;
+  font-weight: 600;
+  font-size: 0.82rem;
+  transition:
+    background-color 120ms ease,
+    border-color 120ms ease,
+    color 120ms ease;
+}
+
+.filter-chip:hover {
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.filter-chip.is-active {
+  background: var(--accent);
+  color: var(--accent-ink);
+  border-color: transparent;
+}
+
+.filter-chip.is-active:hover {
+  background: var(--accent-hover);
+  border-color: transparent;
+}
+
+.filter-chip__count {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  opacity: 0.72;
+}
+
+.filter-chip.is-active .filter-chip__count {
+  opacity: 0.88;
 }
 
 .results__list.is-pending {
@@ -633,6 +724,11 @@ select:focus-visible {
 
 .taamim-keyboard__mark--yetiv {
   transform: translateY(-0.46em);
+}
+
+.taamim-keyboard__mark--compound {
+  font-size: 1.45rem;
+  letter-spacing: 0.02em;
 }
 
 .taamim-keyboard__name {
@@ -862,6 +958,7 @@ p {
   .verse,
   .result,
   .ghost-button,
+  .filter-chip,
   .taamim-keyboard button,
   .status-mark,
   .status-bar::after {

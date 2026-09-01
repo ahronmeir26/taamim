@@ -7,9 +7,22 @@ type TanakhBookRecord = {
   transliterated: string;
   section: TanakhSection;
   sectionLabel: string;
+  trop?: 'prose' | 'emet';
 };
 
 const BOOKS = tanakhBooks as TanakhBookRecord[];
+export const TANAKH_BOOKS = BOOKS;
+const BOOK_BY_ENGLISH = Object.fromEntries(BOOKS.map((book) => [book.english, book])) as Record<
+  TanakhBook,
+  TanakhBookRecord
+>;
+
+export const TANAKH_SECTIONS: Array<{ section: TanakhSection; sectionLabel: string }> = [];
+for (const book of BOOKS) {
+  if (!TANAKH_SECTIONS.some((item) => item.section === book.section)) {
+    TANAKH_SECTIONS.push({ section: book.section, sectionLabel: book.sectionLabel });
+  }
+}
 
 const TRANSLITERATED_BOOK_NAMES: Record<TanakhBook, string> = Object.fromEntries(
   BOOKS.map((book) => [book.english, book.transliterated]),
@@ -19,6 +32,18 @@ const BOOK_SECTIONS: Record<TanakhBook, { section: TanakhSection; sectionLabel: 
   Object.fromEntries(
     BOOKS.map((book) => [book.english, { section: book.section, sectionLabel: book.sectionLabel }]),
   ) as Record<TanakhBook, { section: TanakhSection; sectionLabel: string }>;
+
+export function getBookSection(book: TanakhBook): TanakhSection {
+  return BOOK_BY_ENGLISH[book]?.section ?? 'ketuvim';
+}
+
+export function getBookHebrew(book: TanakhBook): string {
+  return BOOK_BY_ENGLISH[book]?.hebrew ?? book;
+}
+
+export function getBookTransliterated(book: TanakhBook): string {
+  return BOOK_BY_ENGLISH[book]?.transliterated ?? book;
+}
 
 export function formatTanakhRef(ref: string): string {
   const match = ref.match(/^(.+?)\s+(\d+):(\d+)$/);

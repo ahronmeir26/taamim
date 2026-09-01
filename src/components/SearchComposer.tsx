@@ -1,20 +1,42 @@
 import {
+  ATNACH_HAFUKH_MARK,
+  ATNACH_MARK,
+  DEHI_MARK,
+  GALGAL_MARK,
+  GERESH_MUQDAM_MARK,
+  ILUY_MARK,
+  MAHPAKH_MARK,
   MAHPAKH_TOKEN,
+  MERCHA_MARK,
+  MUNACH_MARK,
+  OLE_MARK,
+  PASEQ_MARK,
   PASHTA_TOKEN,
+  PAZER_MARK,
+  QADMA_MARK,
   QADMA_TOKEN,
+  REVIA_MARK,
+  SHALSHELET_MARK,
+  SILLUQ_MARK,
+  TARHA_MARK,
+  TSINNORIT_MARK,
   YETIV_TOKEN,
+  ZINOR_MARK,
   displayTaamimCharacter,
 } from '../lib/hebrew';
+import type { SearchCorpus } from '../types';
 
 type SearchComposerProps = {
+  corpus: SearchCorpus;
   query: string;
   selectedText: string;
+  onCorpusChange: (corpus: SearchCorpus) => void;
   onQueryChange: (value: string) => void;
   onBackspace: () => void;
   onClear: () => void;
 };
 
-const TAAMIM_KEYS = [
+const TORAH_KEYS = [
   { label: '֨', value: QADMA_TOKEN, name: 'קַדְמָא', position: 'high' },
   { label: '֣', name: 'מֻנַּח', position: 'low' },
   { label: '֘', name: 'זַרְקָא', position: 'high' },
@@ -39,26 +61,91 @@ const TAAMIM_KEYS = [
   { label: '֓', name: 'שַׁלְשֶׁלֶת', position: 'high' },
 ];
 
+const EMET_KEYS = [
+  { label: '֥֫', value: `${OLE_MARK}${MERCHA_MARK}`, name: 'עוֹלֶה וְיוֹרֵד', position: 'compound' },
+  { label: '֑', value: ATNACH_MARK, name: 'אֶתְנַח', position: 'low' },
+  { label: '֗', value: REVIA_MARK, name: 'רְבִיע', position: 'high' },
+  {
+    label: '֝֗',
+    value: `${GERESH_MUQDAM_MARK}${REVIA_MARK}`,
+    name: 'רְבִיע מֻגְרָשׁ',
+    position: 'compound',
+  },
+  { label: '֮', value: ZINOR_MARK, name: 'צִנּוֹר', position: 'high' },
+  { label: '֭', value: DEHI_MARK, name: 'דְּחִי', position: 'low' },
+  { label: '֡', value: PAZER_MARK, name: 'פָּזֵר', position: 'high' },
+  { label: '֓', value: SHALSHELET_MARK, name: 'שַׁלְשֶׁלֶת', position: 'high' },
+  {
+    label: '֤׀',
+    value: `${MAHPAKH_MARK}${PASEQ_MARK}`,
+    name: 'מַהְפַּךְ לְגַרְמֵיהּ',
+    position: 'compound',
+  },
+  {
+    label: '֨׀',
+    value: `${QADMA_MARK}${PASEQ_MARK}`,
+    name: 'אַזְלָא לְגַרְמֵיהּ',
+    position: 'compound',
+  },
+  { label: '֥', value: MERCHA_MARK, name: 'מֵרְכָא', position: 'low' },
+  { label: '֣', value: MUNACH_MARK, name: 'מֻנַּח', position: 'low' },
+  { label: '֫', value: OLE_MARK, name: 'עוֹלֶה', position: 'high' },
+  { label: '֤', value: MAHPAKH_MARK, name: 'מַהְפַּךְ', position: 'low' },
+  { label: '֨', value: QADMA_MARK, name: 'אַזְלָא', position: 'high' },
+  { label: '֪', value: GALGAL_MARK, name: 'גַּלְגַּל', position: 'low' },
+  { label: '֬', value: ILUY_MARK, name: 'עִלּוּי', position: 'high' },
+  { label: '֘', value: TSINNORIT_MARK, name: 'צִנּוֹרִית', position: 'high' },
+  { label: '֖', value: TARHA_MARK, name: 'טַרְחָא', position: 'low' },
+  { label: '֢', value: ATNACH_HAFUKH_MARK, name: 'אֶתְנַח הָפוּךְ', position: 'low' },
+  { label: 'ֽ', value: SILLUQ_MARK, name: 'סוֹף פָּסוּק', position: 'low' },
+];
+
 export function SearchComposer({
+  corpus,
   query,
   selectedText,
+  onCorpusChange,
   onQueryChange,
   onBackspace,
   onClear,
 }: SearchComposerProps) {
+  const keys = corpus === 'emet' ? EMET_KEYS : TORAH_KEYS;
+  const selectedPlaceholder =
+    corpus === 'emet' ? 'Highlight a phrase in Sifrei Emet' : 'Highlight a phrase in Tanakh';
+
   return (
     <section className="composer">
       <div className="composer__header">
         <div className="brand">
           <span className="brand__mark" aria-hidden="true">
-            ֑
+            {corpus === 'emet' ? '֫' : '֑'}
           </span>
           <div className="brand__copy">
             <p className="eyebrow">Taamim</p>
-            <h1>Search Tanakh by cantillation</h1>
+            <h1>{corpus === 'emet' ? 'Search by טעמי אמת' : 'Search Tanakh by cantillation'}</h1>
           </div>
         </div>
         <div className="composer__actions">
+          <div className="mode-toggle" role="radiogroup" aria-label="Search mode">
+            <button
+              type="button"
+              role="radio"
+              aria-checked={corpus === 'torah'}
+              className={corpus === 'torah' ? 'is-active' : undefined}
+              onClick={() => onCorpusChange('torah')}
+            >
+              טעמי תורה
+            </button>
+            <button
+              type="button"
+              role="radio"
+              aria-checked={corpus === 'emet'}
+              className={corpus === 'emet' ? 'is-active' : undefined}
+              onClick={() => onCorpusChange('emet')}
+            >
+              טעמי אמת
+            </button>
+          </div>
           <button type="button" className="ghost-button" onClick={onBackspace}>
             Backspace
           </button>
@@ -72,7 +159,7 @@ export function SearchComposer({
         <div className="composer__selected-text">
           <span className="eyebrow">Selected text</span>
           <p className={selectedText ? undefined : 'is-placeholder'} dir={selectedText ? 'rtl' : undefined} lang={selectedText ? 'he' : undefined}>
-            {selectedText || 'Highlight a phrase in Tanakh'}
+            {selectedText || selectedPlaceholder}
           </p>
         </div>
 
@@ -95,9 +182,9 @@ export function SearchComposer({
       <div className="composer__meta composer__meta--keyboard">
         <div className="composer__keyboard-block">
           <div className="taamim-keyboard" dir="rtl">
-            {TAAMIM_KEYS.map((key) => (
+            {keys.map((key) => (
               <button
-                key={key.label}
+                key={key.name}
                 type="button"
                 title={key.name}
                 onClick={() => onQueryChange(query + (key.value ?? key.label))}

@@ -40,6 +40,7 @@ export type TanakhBook =
   | 'II Chronicles';
 
 export type SearchCorpus = 'torah' | 'emet';
+export type TanakhSection = 'torah' | 'neviim' | 'ketuvim';
 
 export type VerseNote = {
   index: number;

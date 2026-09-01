@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef } from 'react';
-import type { VerseRecord } from '../types';
-import { groupBooksBySection } from '../lib/books';
+import type { SearchCorpus, VerseRecord } from '../types';
+import { getBookTransliterated, groupBooksBySection } from '../lib/books';
 
 type TorahBrowserProps = {
   books: Array<{ book: VerseRecord['book']; bookHebrew: string; chapters: number[] }>;
+  corpus: SearchCorpus;
   activeBook: VerseRecord['book'];
   activeChapter: number;
   selectedRef: string | null;
@@ -17,6 +18,7 @@ type TorahBrowserProps = {
 
 export function TorahBrowser({
   books,
+  corpus,
   activeBook,
   activeChapter,
   selectedRef,
@@ -77,10 +79,10 @@ export function TorahBrowser({
     <section className="browser">
       <header className="browser__header">
         <div>
-          <span className="eyebrow">Tanakh</span>
+          <span className="eyebrow">{corpus === 'emet' ? 'Sifrei Emet' : 'Tanakh'}</span>
           <h2>
-            <span className="browser__title-he" lang="he" dir="rtl">
-              {activeBookMeta?.bookHebrew ?? activeBook}
+            <span className="browser__title-he">
+              {getBookTransliterated(activeBook)}
             </span>
             <span>{activeChapter}</span>
           </h2>
@@ -97,7 +99,7 @@ export function TorahBrowser({
                 <optgroup key={group.section} label={group.sectionLabel}>
                   {group.books.map((book) => (
                     <option key={book.book} value={book.book}>
-                      {book.bookHebrew}
+                      {getBookTransliterated(book.book)}
                     </option>
                   ))}
                 </optgroup>

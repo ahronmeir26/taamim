@@ -3,7 +3,7 @@ import { ResultsList } from './components/ResultsList';
 import { SearchComposer } from './components/SearchComposer';
 import { TorahBrowser } from './components/TorahBrowser';
 import { extractTaamim } from './lib/hebrew';
-import type { BookSummary, SearchResult, VerseRecord } from './types';
+import type { BookSummary, SearchCorpus, SearchResult, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -32,6 +32,7 @@ function StatusScreen({
 }
 
 export default function App() {
+  const [corpus, setCorpus] = useState<SearchCorpus>('torah');
   const [books, setBooks] = useState<BookSummary[]>([]);
   const [chapterVerses, setChapterVerses] = useState<VerseRecord[]>([]);
   const [loadState, setLoadState] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -48,7 +49,7 @@ export default function App() {
   const chapterCache = useRef(new Map<string, VerseRecord[]>());
   const searchCache = useRef(new Map<string, SearchResult[]>());
 
-  const searchQuery = useMemo(() => extractTaamim(query), [query]);
+  const searchQuery = useMemo(() => extractTaamim(query, undefined, corpus), [corpus, query]);
   const deferredResults = useDeferredValue(results);
   const resultsPending = deferredResults !== results;
 
@@ -91,13 +92,18 @@ export default function App() {
   useEffect(() => {
     async function loadBooks() {
       try {
-        const response = await fetch(`${API_BASE}/books`);
+        const response = await fetch(`${API_BASE}/books?corpus=${corpus}`);
         if (!response.ok) {
           throw new Error(`Failed to load books: ${response.status}`);
         }
 
         const payload = (await response.json()) as BookSummary[];
+        const firstBook = payload[0];
         setBooks(payload);
+        if (firstBook) {
+          setActiveBook(firstBook.book);
+          setActiveChapter(firstBook.chapters[0] ?? 1);
+        }
         setLoadState('ready');
       } catch (error) {
         console.error(error);
@@ -106,7 +112,7 @@ export default function App() {
     }
 
     void loadBooks();
-  }, []);
+  }, [corpus]);
 
   useEffect(() => {
     if (loadState !== 'ready') {
@@ -114,7 +120,7 @@ export default function App() {
     }
 
     async function loadChapter() {
-      const cacheKey = `${activeBook}:${activeChapter}`;
+      const cacheKey = `${corpus}:${activeBook}:${activeChapter}`;
       const cached = chapterCache.current.get(cacheKey);
       if (cached) {
         setChapterVerses(cached);
@@ -122,7 +128,7 @@ export default function App() {
       }
 
       const response = await fetch(
-        `${API_BASE}/chapter?book=${encodeURIComponent(activeBook)}&chapter=${activeChapter}`,
+        `${API_BASE}/chapter?book=${encodeURIComponent(activeBook)}&chapter=${activeChapter}&corpus=${corpus}`,
       );
       if (!response.ok) {
         throw new Error(`Failed to load chapter: ${response.status}`);
@@ -134,7 +140,7 @@ export default function App() {
     }
 
     void loadChapter();
-  }, [activeBook, activeChapter, loadState]);
+  }, [activeBook, activeChapter, corpus, loadState]);
 
   useEffect(() => {
     if (!debouncedSearchQuery) {
@@ -147,7 +153,8 @@ export default function App() {
     const abortController = new AbortController();
 
     async function runSearch() {
-      const cached = searchCache.current.get(debouncedSearchQuery);
+      const cacheKey = `${corpus}:${debouncedSearchQuery}`;
+      const cached = searchCache.current.get(cacheKey);
       if (cached) {
         startTransition(() => {
           setResults(cached);
@@ -155,15 +162,18 @@ export default function App() {
         return;
       }
 
-      const response = await fetch(`${API_BASE}/search?query=${encodeURIComponent(debouncedSearchQuery)}`, {
-        signal: abortController.signal,
-      });
+      const response = await fetch(
+        `${API_BASE}/search?query=${encodeURIComponent(debouncedSearchQuery)}&corpus=${corpus}`,
+        {
+          signal: abortController.signal,
+        },
+      );
       if (!response.ok) {
         throw new Error(`Failed to search: ${response.status}`);
       }
 
       const payload = (await response.json()) as SearchResult[];
-      searchCache.current.set(debouncedSearchQuery, payload);
+      searchCache.current.set(cacheKey, payload);
       startTransition(() => {
         setResults(payload);
       });
@@ -180,7 +190,7 @@ export default function App() {
     return () => {
       abortController.abort();
     };
-  }, [debouncedSearchQuery]);
+  }, [corpus, debouncedSearchQuery]);
 
   function handleTextSelection(nextSelectedText: string, ref: string) {
     if (!nextSelectedText.trim()) {
@@ -191,7 +201,23 @@ export default function App() {
     setActiveResult(null);
     setSelectedText(nextSelectedText);
     setSelectedSourceRef(ref);
-    setQuery(extractTaamim(nextSelectedText, verseText));
+    setQuery(extractTaamim(nextSelectedText, verseText, corpus));
+  }
+
+  function handleCorpusChange(nextCorpus: SearchCorpus) {
+    if (nextCorpus === corpus) {
+      return;
+    }
+
+    setCorpus(nextCorpus);
+    setQuery('');
+    setSelectedText('');
+    setResults([]);
+    setDebouncedSearchQuery('');
+    setActiveResult(null);
+    setSelectedSourceRef(null);
+    setScrollRequest(null);
+    setHeaderHidden(false);
   }
 
   function handleResultSelect(result: SearchResult) {
@@ -215,8 +241,10 @@ export default function App() {
     <main className="app-shell">
       <div className={headerHidden ? 'composer-shell is-hidden' : 'composer-shell'}>
         <SearchComposer
+          corpus={corpus}
           query={query}
           selectedText={selectedText}
+          onCorpusChange={handleCorpusChange}
           onQueryChange={setQuery}
           onBackspace={() => setQuery((current) => current.slice(0, -1))}
           onClear={() => {
@@ -238,6 +266,7 @@ export default function App() {
       <div className="workspace">
         <TorahBrowser
           books={books}
+          corpus={corpus}
           activeBook={activeBook}
           activeChapter={activeChapter}
           selectedRef={activeResult?.ref ?? selectedSourceRef}
@@ -259,6 +288,7 @@ export default function App() {
           activeRef={activeResult?.ref ?? null}
           hasQuery={Boolean(debouncedSearchQuery)}
           pending={resultsPending}
+          corpus={corpus}
           onSelect={handleResultSelect}
           onScrollStateChange={setHeaderHidden}
         />
