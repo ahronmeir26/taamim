@@ -1,5 +1,6 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import type { VerseRecord } from '../types';
+import { groupBooksBySection } from '../lib/books';
 
 type TorahBrowserProps = {
   books: Array<{ book: VerseRecord['book']; bookHebrew: string; chapters: number[] }>;
@@ -27,7 +28,9 @@ export function TorahBrowser({
   onScrollStateChange,
 }: TorahBrowserProps) {
   const bookOptions = books;
-  const chapterOptions = books.find((book) => book.book === activeBook)?.chapters ?? [];
+  const bookGroups = useMemo(() => groupBooksBySection(bookOptions), [bookOptions]);
+  const activeBookMeta = books.find((book) => book.book === activeBook);
+  const chapterOptions = activeBookMeta?.chapters ?? [];
   const verseRefs = useRef(new Map<string, HTMLElement>());
   const lastScrollTop = useRef(0);
 
@@ -74,8 +77,13 @@ export function TorahBrowser({
     <section className="browser">
       <header className="browser__header">
         <div>
-          <span className="eyebrow">Select Text To Search</span>
-          <h2>Highlight words in this left column to search their taamim sequence.</h2>
+          <span className="eyebrow">Tanakh</span>
+          <h2>
+            <span className="browser__title-he" lang="he" dir="rtl">
+              {activeBookMeta?.bookHebrew ?? activeBook}
+            </span>
+            <span>{activeChapter}</span>
+          </h2>
         </div>
         <div className="browser__controls">
           <label className="browser__control browser__control--book">
@@ -85,10 +93,14 @@ export function TorahBrowser({
               value={activeBook}
               onChange={(event) => onBookChange(event.target.value as VerseRecord['book'])}
             >
-              {bookOptions.map((book) => (
-                <option key={book.book} value={book.book}>
-                  {book.bookHebrew}
-                </option>
+              {bookGroups.map((group) => (
+                <optgroup key={group.section} label={group.sectionLabel}>
+                  {group.books.map((book) => (
+                    <option key={book.book} value={book.book}>
+                      {book.bookHebrew}
+                    </option>
+                  ))}
+                </optgroup>
               ))}
             </select>
           </label>
@@ -110,7 +122,7 @@ export function TorahBrowser({
       </header>
 
       <div className="browser__instruction">
-        Select any word or phrase below. The taamim sequence will be built automatically and searched on the right.
+        Highlight any word or phrase. Its taamim sequence is searched automatically.
       </div>
 
       <div className="browser__text" onScroll={handleScroll} onWheel={handleWheel}>

@@ -7,6 +7,30 @@ import type { BookSummary, SearchResult, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
 
+function StatusScreen({
+  title,
+  copy,
+  loading = false,
+}: {
+  title: string;
+  copy: string;
+  loading?: boolean;
+}) {
+  return (
+    <main className="app-shell status-shell">
+      <section className="status-card">
+        <div className={loading ? 'status-mark is-loading' : 'status-mark'} aria-hidden="true">
+          ֑
+        </div>
+        <p className="eyebrow">Taamim</p>
+        <h1>{title}</h1>
+        <p className="status-copy">{copy}</p>
+        {loading ? <div className="status-bar" role="progressbar" aria-label="Loading" /> : null}
+      </section>
+    </main>
+  );
+}
+
 export default function App() {
   const [books, setBooks] = useState<BookSummary[]>([]);
   const [chapterVerses, setChapterVerses] = useState<VerseRecord[]>([]);
@@ -26,6 +50,7 @@ export default function App() {
 
   const searchQuery = useMemo(() => extractTaamim(query), [query]);
   const deferredResults = useDeferredValue(results);
+  const resultsPending = deferredResults !== results;
 
   useEffect(() => {
     const timeoutId = window.setTimeout(() => {
@@ -177,24 +202,12 @@ export default function App() {
   }
 
   if (loadState === 'loading') {
-    return (
-      <main className="app-shell">
-        <section className="composer">
-          <p className="eyebrow">Loading</p>
-          <h1>Preparing the Torah taamim index.</h1>
-        </section>
-      </main>
-    );
+    return <StatusScreen loading title="Preparing the Tanakh index" copy="Loading books, chapters, and taamim." />;
   }
 
   if (loadState === 'error') {
     return (
-      <main className="app-shell">
-        <section className="composer">
-          <p className="eyebrow">Load Error</p>
-          <h1>The Torah index could not be loaded.</h1>
-        </section>
-      </main>
+      <StatusScreen title="Could not load the Tanakh index" copy="Check that the local API is running, then refresh." />
     );
   }
 
@@ -219,7 +232,7 @@ export default function App() {
       </div>
 
       <div className="mobile-swipe-hint" aria-hidden="true">
-        Swipe sideways to move between text and matches
+        Swipe between text and matches
       </div>
 
       <div className="workspace">
@@ -244,6 +257,8 @@ export default function App() {
         <ResultsList
           results={deferredResults}
           activeRef={activeResult?.ref ?? null}
+          hasQuery={Boolean(debouncedSearchQuery)}
+          pending={resultsPending}
           onSelect={handleResultSelect}
           onScrollStateChange={setHeaderHidden}
         />

@@ -18,7 +18,10 @@ export function VerificationGate({ onVerified }: VerificationGateProps) {
 
   return (
     <main className="app-shell verification-shell">
-      <section className="composer verification" aria-labelledby="verification-heading">
+      <section className="verification" aria-labelledby="verification-heading">
+        <div className="status-mark" aria-hidden="true">
+          ֑
+        </div>
         <p className="eyebrow">Verification</p>
         <h1 id="verification-heading">
           Was <span lang="he" dir="rtl">ירמיהו הנביא</span> born to two parents?

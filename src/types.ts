@@ -1,4 +1,45 @@
-export type TorahBook = 'Genesis' | 'Exodus' | 'Leviticus' | 'Numbers' | 'Deuteronomy';
+export type TanakhBook =
+  | 'Genesis'
+  | 'Exodus'
+  | 'Leviticus'
+  | 'Numbers'
+  | 'Deuteronomy'
+  | 'Joshua'
+  | 'Judges'
+  | 'I Samuel'
+  | 'II Samuel'
+  | 'I Kings'
+  | 'II Kings'
+  | 'Isaiah'
+  | 'Jeremiah'
+  | 'Ezekiel'
+  | 'Hosea'
+  | 'Joel'
+  | 'Amos'
+  | 'Obadiah'
+  | 'Jonah'
+  | 'Micah'
+  | 'Nahum'
+  | 'Habakkuk'
+  | 'Zephaniah'
+  | 'Haggai'
+  | 'Zechariah'
+  | 'Malachi'
+  | 'Psalms'
+  | 'Proverbs'
+  | 'Job'
+  | 'Song of Songs'
+  | 'Ruth'
+  | 'Lamentations'
+  | 'Ecclesiastes'
+  | 'Esther'
+  | 'Daniel'
+  | 'Ezra'
+  | 'Nehemiah'
+  | 'I Chronicles'
+  | 'II Chronicles';
+
+export type TanakhSection = 'torah' | 'neviim' | 'ketuvim';
 
 export type VerseNote = {
   index: number;
@@ -15,7 +56,7 @@ export type VerseNote = {
 
 export type VerseRecord = {
   ref: string;
-  book: TorahBook;
+  book: TanakhBook;
   bookHebrew: string;
   chapter: number;
   verse: number;
@@ -26,7 +67,7 @@ export type VerseRecord = {
 
 export type SearchResult = {
   ref: string;
-  book: TorahBook;
+  book: TanakhBook;
   chapter: number;
   verse: number;
   startWordIndex: number;
@@ -39,7 +80,7 @@ export type SearchResult = {
 };
 
 export type BookSummary = {
-  book: TorahBook;
+  book: TanakhBook;
   bookHebrew: string;
   chapters: number[];
 };

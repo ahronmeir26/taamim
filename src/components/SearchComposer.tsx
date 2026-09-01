@@ -49,13 +49,18 @@ export function SearchComposer({
   return (
     <section className="composer">
       <div className="composer__header">
-        <div className="composer__title">
-          <p className="eyebrow">Taamim Search</p>
-          <h1>Exact Torah taamim search</h1>
+        <div className="brand">
+          <span className="brand__mark" aria-hidden="true">
+            ֑
+          </span>
+          <div className="brand__copy">
+            <p className="eyebrow">Taamim</p>
+            <h1>Search Tanakh by cantillation</h1>
+          </div>
         </div>
         <div className="composer__actions">
           <button type="button" className="ghost-button" onClick={onBackspace}>
-            Delete Last
+            Backspace
           </button>
           <button type="button" className="ghost-button" onClick={onClear}>
             Clear
@@ -65,12 +70,14 @@ export function SearchComposer({
 
       <div className="composer__body">
         <div className="composer__selected-text">
-          <span className="eyebrow">Selected Text</span>
-          <p>{selectedText || 'Select text below'}</p>
+          <span className="eyebrow">Selected text</span>
+          <p className={selectedText ? undefined : 'is-placeholder'} dir={selectedText ? 'rtl' : undefined} lang={selectedText ? 'he' : undefined}>
+            {selectedText || 'Highlight a phrase in Tanakh'}
+          </p>
         </div>
 
         <div className="composer__sequence">
-          <span className="eyebrow">Current Sequence</span>
+          <span className="eyebrow">Sequence</span>
           <div className="taamim-bubbles" dir="rtl" lang="he">
             {query ? (
               Array.from(query).map((mark, index) => (
@@ -79,7 +86,7 @@ export function SearchComposer({
                 </span>
               ))
             ) : (
-              <span className="composer__empty-sequence">No taamim selected</span>
+              <span className="composer__empty-sequence">Tap a taam, or select text below</span>
             )}
           </div>
         </div>
