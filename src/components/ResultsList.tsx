@@ -193,6 +193,7 @@ export function ResultsList({
             type="button"
             role="radio"
             aria-checked={sectionFilter === 'all'}
+            aria-label={`All, ${results.length.toLocaleString()} matches`}
             className={sectionFilter === 'all' ? 'filter-chip is-active' : 'filter-chip'}
             onClick={() => handleSectionChange('all')}
           >
@@ -212,6 +213,7 @@ export function ResultsList({
                 role="radio"
                 aria-checked={sectionFilter === section.section}
                 className={sectionFilter === section.section ? 'filter-chip is-active' : 'filter-chip'}
+                aria-label={`${SECTION_FILTER_LABELS[section.section]}, ${count.toLocaleString()} matches`}
                 onClick={() => handleSectionChange(section.section)}
               >
                 {SECTION_FILTER_LABELS[section.section]}
