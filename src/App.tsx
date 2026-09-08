@@ -3,7 +3,7 @@ import { ResultsList } from './components/ResultsList';
 import { SearchComposer } from './components/SearchComposer';
 import { TorahBrowser } from './components/TorahBrowser';
 import { getBookSummaries } from './lib/books';
-import { encodeSearchQuery, extractTaamim } from './lib/hebrew';
+import { extractTaamim } from './lib/hebrew';
 import type { SearchCorpus, SearchResult, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
@@ -146,18 +146,25 @@ export default function App() {
         return;
       }
 
-      const response = await fetch(
-        `${API_BASE}/search?q=${encodeSearchQuery(debouncedSearchQuery)}&corpus=${corpus}${includeNach ? '&nach=1' : ''}`,
-        {
-          signal: abortController.signal,
-        },
-      );
-      const contentType = response.headers.get('content-type') ?? '';
-      if (!response.ok || !contentType.includes('json')) {
+      const response = await fetch(`${API_BASE}/search`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          query: debouncedSearchQuery,
+          corpus,
+          nach: includeNach ? '1' : undefined,
+        }),
+        signal: abortController.signal,
+      });
+      const payloadText = await response.text();
+      if (!response.ok) {
         throw new Error(`Failed to search: ${response.status}`);
       }
 
-      const payload = (await response.json()) as SearchResult[];
+      const payload = JSON.parse(payloadText) as SearchResult[];
+      if (!Array.isArray(payload)) {
+        throw new Error('Failed to search: unexpected response');
+      }
       searchCache.current.set(cacheKey, payload);
       startTransition(() => {
         setResults(payload);

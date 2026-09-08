@@ -1,5 +1,5 @@
 import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
-import { decodeSearchQuery, resolveCorpus, resolveNach } from '../lib/taamim.mjs';
+import { resolveCorpus, resolveNach, resolveSearchParams } from '../lib/taamim.mjs';
 
 function sendJson(response, status, payload) {
   response.statusCode = status;
@@ -7,8 +7,22 @@ function sendJson(response, status, payload) {
   response.end(JSON.stringify(payload));
 }
 
+async function readJsonBody(request) {
+  const chunks = [];
+  for await (const chunk of request) {
+    chunks.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+  }
+
+  const raw = Buffer.concat(chunks).toString('utf8').trim();
+  if (!raw) {
+    return {};
+  }
+
+  return JSON.parse(raw);
+}
+
 async function handleApi(request, response, next) {
-  if (request.method !== 'GET' || !request.url) {
+  if ((request.method !== 'GET' && request.method !== 'POST') || !request.url) {
     next();
     return;
   }
@@ -44,11 +58,10 @@ async function handleApi(request, response, next) {
   }
 
   if (route === '/api/search') {
-    sendJson(
-      response,
-      200,
-      await searchTaamim(decodeSearchQuery(url.searchParams.get('q'), url.searchParams.get('query')), corpus, includeNach),
-    );
+    const source =
+      request.method === 'POST' ? await readJsonBody(request) : Object.fromEntries(url.searchParams.entries());
+    const search = resolveSearchParams(source);
+    sendJson(response, 200, await searchTaamim(search.query, search.corpus, search.includeNach));
     return;
   }
 

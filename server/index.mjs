@@ -1,10 +1,11 @@
 import express from 'express';
 import path from 'node:path';
 import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
-import { decodeSearchQuery, resolveCorpus, resolveNach } from '../lib/taamim.mjs';
+import { resolveCorpus, resolveNach, resolveSearchParams } from '../lib/taamim.mjs';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const app = express();
+app.use(express.json());
 const APP_BASE_PATH = '/taamim';
 const API_BASE_PATH = `${APP_BASE_PATH}/api`;
 const DIST_DIR = path.resolve('dist');
@@ -29,9 +30,8 @@ async function sendChapter(request, response) {
 }
 
 async function sendSearch(request, response) {
-  const query = decodeSearchQuery(request.query.q, request.query.query);
-  const corpus = resolveCorpus(request.query.corpus);
-  const includeNach = resolveNach(request.query.nach);
+  const source = request.method === 'POST' ? request.body : request.query;
+  const { query, corpus, includeNach } = resolveSearchParams(source);
   const cacheKey = `${corpus}:${includeNach ? 'nach' : 'torah'}:${query}`;
   const cached = searchResponseCache.get(cacheKey);
   if (cached) {
@@ -49,7 +49,9 @@ app.get(`${API_BASE_PATH}/books`, sendBooks);
 app.get('/api/chapter', sendChapter);
 app.get(`${API_BASE_PATH}/chapter`, sendChapter);
 app.get('/api/search', sendSearch);
+app.post('/api/search', sendSearch);
 app.get(`${API_BASE_PATH}/search`, sendSearch);
+app.post(`${API_BASE_PATH}/search`, sendSearch);
 
 app.use(express.static(DIST_DIR));
 
