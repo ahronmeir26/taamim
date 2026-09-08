@@ -3,7 +3,7 @@ import { ResultsList } from './components/ResultsList';
 import { SearchComposer } from './components/SearchComposer';
 import { TorahBrowser } from './components/TorahBrowser';
 import { getBookSummaries } from './lib/books';
-import { extractTaamim } from './lib/hebrew';
+import { encodeSearchQuery, extractTaamim } from './lib/hebrew';
 import type { SearchCorpus, SearchResult, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
@@ -150,7 +150,7 @@ export default function App() {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: debouncedSearchQuery,
+          q: encodeSearchQuery(debouncedSearchQuery),
           corpus,
           nach: includeNach ? '1' : undefined,
         }),
