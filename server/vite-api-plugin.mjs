@@ -1,5 +1,5 @@
 import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
-import { resolveCorpus, resolveNach } from '../lib/taamim.mjs';
+import { decodeSearchQuery, resolveCorpus, resolveNach } from '../lib/taamim.mjs';
 
 function sendJson(response, status, payload) {
   response.statusCode = status;
@@ -44,7 +44,11 @@ async function handleApi(request, response, next) {
   }
 
   if (route === '/api/search') {
-    sendJson(response, 200, await searchTaamim(String(url.searchParams.get('query') ?? ''), corpus, includeNach));
+    sendJson(
+      response,
+      200,
+      await searchTaamim(decodeSearchQuery(url.searchParams.get('q'), url.searchParams.get('query')), corpus, includeNach),
+    );
     return;
   }
 

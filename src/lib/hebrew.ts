@@ -316,6 +316,10 @@ export function highlightWords(
   }));
 }
 
+export function encodeSearchQuery(query: string): string {
+  return Array.from(new TextEncoder().encode(query), (byte) => byte.toString(16).padStart(2, '0')).join('');
+}
+
 export function displayTaamimCharacter(character: string): string {
   if (character === YETIV_TOKEN) {
     return '֚';

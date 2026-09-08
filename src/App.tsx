@@ -3,7 +3,7 @@ import { ResultsList } from './components/ResultsList';
 import { SearchComposer } from './components/SearchComposer';
 import { TorahBrowser } from './components/TorahBrowser';
 import { getBookSummaries } from './lib/books';
-import { extractTaamim } from './lib/hebrew';
+import { encodeSearchQuery, extractTaamim } from './lib/hebrew';
 import type { SearchCorpus, SearchResult, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
@@ -47,6 +47,7 @@ export default function App() {
   const [scrollRequest, setScrollRequest] = useState<{ ref: string; nonce: number } | null>(null);
   const [results, setResults] = useState<SearchResult[]>([]);
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
+  const [searchStatus, setSearchStatus] = useState<'idle' | 'searching' | 'ready' | 'error'>('idle');
   const [headerHidden, setHeaderHidden] = useState(false);
   const chapterCache = useRef(new Map<string, VerseRecord[]>());
   const searchCache = useRef(new Map<string, SearchResult[]>());
@@ -126,11 +127,13 @@ export default function App() {
     if (!debouncedSearchQuery) {
       setResults([]);
       setActiveResult(null);
+      setSearchStatus('idle');
       setHeaderHidden(false);
       return;
     }
 
     const abortController = new AbortController();
+    setSearchStatus('searching');
 
     async function runSearch() {
       const cacheKey = `${corpus}:${includeNach ? 'nach' : 'core'}:${debouncedSearchQuery}`;
@@ -138,17 +141,19 @@ export default function App() {
       if (cached) {
         startTransition(() => {
           setResults(cached);
+          setSearchStatus('ready');
         });
         return;
       }
 
       const response = await fetch(
-        `${API_BASE}/search?query=${encodeURIComponent(debouncedSearchQuery)}&corpus=${corpus}${includeNach ? '&nach=1' : ''}`,
+        `${API_BASE}/search?q=${encodeSearchQuery(debouncedSearchQuery)}&corpus=${corpus}${includeNach ? '&nach=1' : ''}`,
         {
           signal: abortController.signal,
         },
       );
-      if (!response.ok) {
+      const contentType = response.headers.get('content-type') ?? '';
+      if (!response.ok || !contentType.includes('json')) {
         throw new Error(`Failed to search: ${response.status}`);
       }
 
@@ -156,6 +161,7 @@ export default function App() {
       searchCache.current.set(cacheKey, payload);
       startTransition(() => {
         setResults(payload);
+        setSearchStatus('ready');
       });
     }
 
@@ -165,6 +171,8 @@ export default function App() {
       }
 
       console.error(error);
+      setResults([]);
+      setSearchStatus('error');
     });
 
     return () => {
@@ -291,7 +299,9 @@ export default function App() {
           results={deferredResults}
           activeRef={activeResult?.ref ?? null}
           hasQuery={Boolean(debouncedSearchQuery)}
-          pending={resultsPending}
+          pending={resultsPending || searchStatus === 'searching'}
+          searching={searchStatus === 'searching'}
+          searchFailed={searchStatus === 'error'}
           corpus={corpus}
           includeNach={includeNach}
           onSelect={handleResultSelect}

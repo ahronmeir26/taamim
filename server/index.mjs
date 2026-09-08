@@ -1,7 +1,7 @@
 import express from 'express';
 import path from 'node:path';
 import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
-import { resolveCorpus, resolveNach } from '../lib/taamim.mjs';
+import { decodeSearchQuery, resolveCorpus, resolveNach } from '../lib/taamim.mjs';
 
 const PORT = Number(process.env.PORT ?? 8787);
 const app = express();
@@ -29,7 +29,7 @@ async function sendChapter(request, response) {
 }
 
 async function sendSearch(request, response) {
-  const query = String(request.query.query ?? '');
+  const query = decodeSearchQuery(request.query.q, request.query.query);
   const corpus = resolveCorpus(request.query.corpus);
   const includeNach = resolveNach(request.query.nach);
   const cacheKey = `${corpus}:${includeNach ? 'nach' : 'torah'}:${query}`;

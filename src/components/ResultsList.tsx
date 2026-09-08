@@ -23,6 +23,8 @@ type ResultsListProps = {
   activeRef: string | null;
   hasQuery: boolean;
   pending: boolean;
+  searching?: boolean;
+  searchFailed?: boolean;
   corpus: SearchCorpus;
   includeNach: boolean;
   onSelect: (result: SearchResult) => void;
@@ -34,6 +36,8 @@ export function ResultsList({
   activeRef,
   hasQuery,
   pending,
+  searching = false,
+  searchFailed = false,
   corpus,
   includeNach,
   onSelect,
@@ -154,9 +158,13 @@ export function ResultsList({
           <span className="eyebrow">Matches</span>
           <h2>
             {hasQuery
-              ? isFiltered
-                ? `${filteredResults.length.toLocaleString()} of ${results.length.toLocaleString()} matches`
-                : `${results.length.toLocaleString()} matches`
+              ? searching
+                ? 'Searching'
+                : searchFailed
+                  ? 'Could not search'
+                  : isFiltered
+                    ? `${filteredResults.length.toLocaleString()} of ${results.length.toLocaleString()} matches`
+                    : `${results.length.toLocaleString()} matches`
               : 'Start a search'}
           </h2>
         </div>
@@ -239,6 +247,10 @@ export function ResultsList({
                 ? 'Highlight a phrase in Tanakh, or tap taamim to search.'
                 : 'Highlight a phrase in Torah, or tap taamim to search.'}
           </p>
+        ) : searching ? (
+          <p className="results__empty">Looking up this sequence.</p>
+        ) : searchFailed ? (
+          <p className="results__empty">Search failed. Tap the sequence again to retry.</p>
         ) : visibleResults.length === 0 ? (
           <p className="results__empty">
             {results.length > 0
