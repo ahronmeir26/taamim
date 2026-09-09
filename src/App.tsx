@@ -261,6 +261,7 @@ export default function App() {
           includeNach={includeNach}
           query={query}
           selectedText={selectedText}
+          results={deferredResults}
           onCorpusChange={handleCorpusChange}
           onNachChange={handleNachChange}
           onQueryChange={setQuery}

@@ -74,6 +74,7 @@ export type SearchResult = {
   startWordIndex: number;
   endWordIndex: number;
   matchedTaamim: string;
+  nextTaamim: string;
   matchedText: string;
   contextText: string;
   baseContextText: string;

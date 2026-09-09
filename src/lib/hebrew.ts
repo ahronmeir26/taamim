@@ -1,4 +1,6 @@
-const TAAMIM_CHAR_REGEX = /[\u0591-\u05AF\u05BF\u05C0\u05C4\u05C5]/;
+// Cantillation U+0591–U+05AE, plus paseq for legarmeh. Rafe, masora circle,
+// and puncta extraordinaria (U+05C4/U+05C5) are not trop and must not split sequences.
+const TAAMIM_CHAR_REGEX = /[\u0591-\u05AE\u05C0]/;
 const VOWELS_REGEX = /[\u05B0-\u05BC\u05C1\u05C2\u05C7]/g;
 const LETTER_REGEX = /[\u05D0-\u05EA]/g;
 const METEG = '\u05BD';
@@ -320,6 +322,35 @@ export function encodeSearchQuery(query: string): string {
   return Array.from(new TextEncoder().encode(query), (byte) =>
     (byte ^ 0x5a).toString(16).padStart(2, '0'),
   ).join('');
+}
+
+export function followShareByToken(
+  results: { nextTaamim?: string }[],
+  tokens: string[],
+): Record<string, number> {
+  const total = results.length;
+  const shares: Record<string, number> = {};
+
+  if (!total) {
+    return shares;
+  }
+
+  for (const token of tokens) {
+    if (!token) {
+      continue;
+    }
+
+    let count = 0;
+    for (const result of results) {
+      if (result.nextTaamim?.startsWith(token)) {
+        count += 1;
+      }
+    }
+
+    shares[token] = count / total;
+  }
+
+  return shares;
 }
 
 export function displayTaamimCharacter(character: string): string {

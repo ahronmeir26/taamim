@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   ATNACH_HAFUKH_MARK,
   ATNACH_MARK,
@@ -23,14 +24,17 @@ import {
   YETIV_TOKEN,
   ZINOR_MARK,
   displayTaamimCharacter,
+  extractTaamim,
+  followShareByToken,
 } from '../lib/hebrew';
-import type { SearchCorpus } from '../types';
+import type { SearchCorpus, SearchResult } from '../types';
 
 type SearchComposerProps = {
   corpus: SearchCorpus;
   includeNach: boolean;
   query: string;
   selectedText: string;
+  results: SearchResult[];
   onCorpusChange: (corpus: SearchCorpus) => void;
   onNachChange: (includeNach: boolean) => void;
   onQueryChange: (value: string) => void;
@@ -102,11 +106,22 @@ const EMET_KEYS = [
   { label: 'ֽ', value: SILLUQ_MARK, name: 'סוֹף פָּסוּק', position: 'low' },
 ];
 
+function followFillPercent(share: number): string {
+  if (share <= 0) {
+    return '0%';
+  }
+
+  const minFill = 6;
+  const maxFill = 16;
+  return `${(minFill + (maxFill - minFill) * Math.sqrt(share)).toFixed(1)}%`;
+}
+
 export function SearchComposer({
   corpus,
   includeNach,
   query,
   selectedText,
+  results,
   onCorpusChange,
   onNachChange,
   onQueryChange,
@@ -114,6 +129,17 @@ export function SearchComposer({
   onClear,
 }: SearchComposerProps) {
   const keys = corpus === 'emet' ? EMET_KEYS : TORAH_KEYS;
+  const followByToken = useMemo(() => {
+    const searchQuery = extractTaamim(query, undefined, corpus);
+    if (!searchQuery || results[0]?.matchedTaamim !== searchQuery) {
+      return {};
+    }
+
+    return followShareByToken(
+      results,
+      keys.map((key) => extractTaamim(key.value ?? key.label, undefined, corpus)),
+    );
+  }, [corpus, query, results]);
   const selectedPlaceholder =
     corpus === 'emet'
       ? 'Highlight a phrase in Sifrei Emet'
@@ -250,25 +276,33 @@ export function SearchComposer({
       <div className="composer__meta composer__meta--keyboard">
         <div className="composer__keyboard-block">
           <div className="taamim-keyboard" dir="rtl">
-            {keys.map((key) => (
-              <button
-                key={key.name}
-                type="button"
-                title={key.name}
-                onClick={() => onQueryChange(query + (key.value ?? key.label))}
-              >
-                <span
-                  className={`taamim-keyboard__mark taamim-keyboard__mark--${key.position}`}
-                  dir="rtl"
-                  lang="he"
+            {keys.map((key) => {
+              const token = extractTaamim(key.value ?? key.label, undefined, corpus);
+              const follow = followByToken[token] ?? 0;
+              const followPercent = Math.round(follow * 100);
+              const followFill = followFillPercent(follow);
+
+              return (
+                <button
+                  key={key.name}
+                  type="button"
+                  title={query ? `${key.name} · ${followPercent}% follow` : key.name}
+                  style={{ ['--follow' as string]: followFill }}
+                  onClick={() => onQueryChange(query + (key.value ?? key.label))}
                 >
-                  {key.label}
-                </span>
-                <span className="taamim-keyboard__name" dir="rtl" lang="he">
-                  {key.name}
-                </span>
-              </button>
-            ))}
+                  <span
+                    className={`taamim-keyboard__mark taamim-keyboard__mark--${key.position}`}
+                    dir="rtl"
+                    lang="he"
+                  >
+                    {key.label}
+                  </span>
+                  <span className="taamim-keyboard__name" dir="rtl" lang="he">
+                    {key.name}
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>
