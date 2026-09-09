@@ -1,4 +1,4 @@
-import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
+import { getBooks, getChapter, getTaamimFrequencies, searchTaamim } from '../lib/corpus.mjs';
 import { resolveCorpus, resolveNach, resolveSearchParams } from '../lib/taamim.mjs';
 
 function sendJson(response, status, payload) {
@@ -54,6 +54,11 @@ async function handleApi(request, response, next) {
     }
 
     sendJson(response, 200, verses);
+    return;
+  }
+
+  if (route === '/api/follow') {
+    sendJson(response, 200, await getTaamimFrequencies(corpus, includeNach));
     return;
   }
 

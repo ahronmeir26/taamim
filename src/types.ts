@@ -81,6 +81,11 @@ export type SearchResult = {
   notes: VerseNote[];
 };
 
+export type TaamimFrequencies = {
+  total: number;
+  counts: Record<string, number>;
+};
+
 export type BookSummary = {
   book: TanakhBook;
   bookHebrew: string;

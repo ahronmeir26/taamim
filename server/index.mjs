@@ -1,6 +1,6 @@
 import express from 'express';
 import path from 'node:path';
-import { getBooks, getChapter, searchTaamim } from '../lib/corpus.mjs';
+import { getBooks, getChapter, getTaamimFrequencies, searchTaamim } from '../lib/corpus.mjs';
 import { resolveCorpus, resolveNach, resolveSearchParams } from '../lib/taamim.mjs';
 
 const PORT = Number(process.env.PORT ?? 8787);
@@ -29,6 +29,12 @@ async function sendChapter(request, response) {
   response.json(verses);
 }
 
+async function sendFollow(request, response) {
+  response.json(
+    await getTaamimFrequencies(resolveCorpus(request.query.corpus), resolveNach(request.query.nach)),
+  );
+}
+
 async function sendSearch(request, response) {
   const source = request.method === 'POST' ? request.body : request.query;
   const { query, corpus, includeNach } = resolveSearchParams(source);
@@ -48,6 +54,8 @@ app.get('/api/books', sendBooks);
 app.get(`${API_BASE_PATH}/books`, sendBooks);
 app.get('/api/chapter', sendChapter);
 app.get(`${API_BASE_PATH}/chapter`, sendChapter);
+app.get('/api/follow', sendFollow);
+app.get(`${API_BASE_PATH}/follow`, sendFollow);
 app.get('/api/search', sendSearch);
 app.post('/api/search', sendSearch);
 app.get(`${API_BASE_PATH}/search`, sendSearch);

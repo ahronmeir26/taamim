@@ -26,8 +26,9 @@ import {
   displayTaamimCharacter,
   extractTaamim,
   followShareByToken,
+  shareFromCounts,
 } from '../lib/hebrew';
-import type { SearchCorpus, SearchResult } from '../types';
+import type { SearchCorpus, SearchResult, TaamimFrequencies } from '../types';
 
 type SearchComposerProps = {
   corpus: SearchCorpus;
@@ -35,6 +36,7 @@ type SearchComposerProps = {
   query: string;
   selectedText: string;
   results: SearchResult[];
+  frequencies: TaamimFrequencies | null;
   onCorpusChange: (corpus: SearchCorpus) => void;
   onNachChange: (includeNach: boolean) => void;
   onQueryChange: (value: string) => void;
@@ -111,9 +113,24 @@ function followFillPercent(share: number): string {
     return '0%';
   }
 
-  const minFill = 6;
-  const maxFill = 16;
-  return `${(minFill + (maxFill - minFill) * Math.sqrt(share)).toFixed(1)}%`;
+  return `${Math.min(16, 20 * Math.sqrt(share)).toFixed(1)}%`;
+}
+
+function formatSharePercent(share: number): string {
+  if (share <= 0) {
+    return '0';
+  }
+
+  const percent = share * 100;
+  if (percent < 0.1) {
+    return '<0.1';
+  }
+
+  if (percent < 1) {
+    return percent.toFixed(1);
+  }
+
+  return String(Math.round(percent));
 }
 
 export function SearchComposer({
@@ -122,6 +139,7 @@ export function SearchComposer({
   query,
   selectedText,
   results,
+  frequencies,
   onCorpusChange,
   onNachChange,
   onQueryChange,
@@ -131,15 +149,18 @@ export function SearchComposer({
   const keys = corpus === 'emet' ? EMET_KEYS : TORAH_KEYS;
   const followByToken = useMemo(() => {
     const searchQuery = extractTaamim(query, undefined, corpus);
-    if (!searchQuery || results[0]?.matchedTaamim !== searchQuery) {
-      return {};
+    const tokens = keys.map((key) => extractTaamim(key.value ?? key.label, undefined, corpus));
+
+    if (searchQuery && results[0]?.matchedTaamim === searchQuery) {
+      return followShareByToken(results, tokens);
     }
 
-    return followShareByToken(
-      results,
-      keys.map((key) => extractTaamim(key.value ?? key.label, undefined, corpus)),
-    );
-  }, [corpus, query, results]);
+    if (!searchQuery) {
+      return shareFromCounts(frequencies, tokens);
+    }
+
+    return {};
+  }, [corpus, frequencies, keys, query, results]);
   const selectedPlaceholder =
     corpus === 'emet'
       ? 'Highlight a phrase in Sifrei Emet'
@@ -279,14 +300,18 @@ export function SearchComposer({
             {keys.map((key) => {
               const token = extractTaamim(key.value ?? key.label, undefined, corpus);
               const follow = followByToken[token] ?? 0;
-              const followPercent = Math.round(follow * 100);
+              const followPercent = formatSharePercent(follow);
               const followFill = followFillPercent(follow);
 
               return (
                 <button
                   key={key.name}
                   type="button"
-                  title={query ? `${key.name} · ${followPercent}% follow` : key.name}
+                  title={
+                    query
+                      ? `${key.name} · ${followPercent}% follow`
+                      : `${key.name} · ${followPercent}% of corpus`
+                  }
                   style={{ ['--follow' as string]: followFill }}
                   onClick={() => onQueryChange(query + (key.value ?? key.label))}
                 >

@@ -324,6 +324,28 @@ export function encodeSearchQuery(query: string): string {
   ).join('');
 }
 
+export function shareFromCounts(
+  frequencies: { total: number; counts: Record<string, number> } | null | undefined,
+  tokens: string[],
+): Record<string, number> {
+  const shares: Record<string, number> = {};
+  const total = frequencies?.total ?? 0;
+
+  if (!total) {
+    return shares;
+  }
+
+  for (const token of tokens) {
+    if (!token) {
+      continue;
+    }
+
+    shares[token] = (frequencies?.counts[token] ?? 0) / total;
+  }
+
+  return shares;
+}
+
 export function followShareByToken(
   results: { nextTaamim?: string }[],
   tokens: string[],

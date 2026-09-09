@@ -4,7 +4,7 @@ import { SearchComposer } from './components/SearchComposer';
 import { TorahBrowser } from './components/TorahBrowser';
 import { getBookSummaries } from './lib/books';
 import { encodeSearchQuery, extractTaamim } from './lib/hebrew';
-import type { SearchCorpus, SearchResult, VerseRecord } from './types';
+import type { SearchCorpus, SearchResult, TaamimFrequencies, VerseRecord } from './types';
 
 const API_BASE = `${import.meta.env.BASE_URL}api`;
 
@@ -49,8 +49,10 @@ export default function App() {
   const [debouncedSearchQuery, setDebouncedSearchQuery] = useState('');
   const [searchStatus, setSearchStatus] = useState<'idle' | 'searching' | 'ready' | 'error'>('idle');
   const [headerHidden, setHeaderHidden] = useState(false);
+  const [frequencies, setFrequencies] = useState<TaamimFrequencies | null>(null);
   const chapterCache = useRef(new Map<string, VerseRecord[]>());
   const searchCache = useRef(new Map<string, SearchResult[]>());
+  const frequencyCache = useRef(new Map<string, TaamimFrequencies>());
 
   const searchQuery = useMemo(() => extractTaamim(query, undefined, corpus), [corpus, query]);
   const deferredResults = useDeferredValue(results);
@@ -65,6 +67,49 @@ export default function App() {
       window.clearTimeout(timeoutId);
     };
   }, [searchQuery]);
+
+  useEffect(() => {
+    const cacheKey = `${corpus}:${includeNach ? 'nach' : 'core'}`;
+    const cached = frequencyCache.current.get(cacheKey);
+    if (cached) {
+      setFrequencies(cached);
+      return;
+    }
+
+    const abortController = new AbortController();
+    setFrequencies(null);
+
+    fetch(`${API_BASE}/follow?corpus=${encodeURIComponent(corpus)}${includeNach ? '&nach=1' : ''}`, {
+      signal: abortController.signal,
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error(`Failed to load frequencies: ${response.status}`);
+        }
+
+        return (await response.json()) as TaamimFrequencies;
+      })
+      .then((payload) => {
+        if (!payload || typeof payload.total !== 'number' || typeof payload.counts !== 'object') {
+          throw new Error('Failed to load frequencies: unexpected response');
+        }
+
+        frequencyCache.current.set(cacheKey, payload);
+        setFrequencies(payload);
+      })
+      .catch((error: unknown) => {
+        if (error instanceof Error && error.name === 'AbortError') {
+          return;
+        }
+
+        console.error(error);
+        setFrequencies(null);
+      });
+
+    return () => {
+      abortController.abort();
+    };
+  }, [corpus, includeNach]);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -262,6 +307,7 @@ export default function App() {
           query={query}
           selectedText={selectedText}
           results={deferredResults}
+          frequencies={frequencies}
           onCorpusChange={handleCorpusChange}
           onNachChange={handleNachChange}
           onQueryChange={setQuery}
